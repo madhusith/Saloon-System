@@ -39,7 +39,7 @@ export const AdminDashboard = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Welcome back, {user?.fullName}!</h1>
-        <p className="mt-1 text-sm text-slate-500">Here is a quick overview of Salon Elegance today.</p>
+        <p className="mt-1 text-sm text-slate-500">Here is a quick overview of Salon Shyani today.</p>
       </div>
 
       {/* Stats Cards */}

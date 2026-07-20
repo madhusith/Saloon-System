@@ -1,6 +1,7 @@
 import app from './app.js';
 import { env, validateEnv } from './config/env.js';
 
+// Initialize and validate configurations
 validateEnv();
 
 const server = app.listen(env.port, () => {

@@ -50,7 +50,7 @@ export const Register = () => {
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div>
           <div className="flex justify-center text-pink-600 font-extrabold text-3xl tracking-tight">
-            💅 SALON ELEGANCE
+            Salon Shyani
           </div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">
             Create customer account

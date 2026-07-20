@@ -39,7 +39,7 @@ export const VerifyEmail = () => {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
         <div className="flex justify-center text-pink-600 font-extrabold text-3xl tracking-tight">
-          💅 SALON ELEGANCE
+          Salon Shyani
         </div>
 
         {status === 'verifying' && (

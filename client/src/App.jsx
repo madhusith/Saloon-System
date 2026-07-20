@@ -31,7 +31,7 @@ function HomePage() {
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between">
       {/* Navigation */}
       <nav className="h-16 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-6 md:px-12">
-        <span className="text-xl font-extrabold text-pink-700 tracking-wide">💅 SALON ELEGANCE</span>
+        <span className="text-xl font-extrabold text-pink-700 tracking-wide">Salon Shyani</span>
         <div className="flex items-center space-x-4">
           {user ? (
             <>
@@ -76,7 +76,7 @@ function HomePage() {
             Salon Management System
           </h1>
           <p className="text-base text-slate-500 leading-relaxed md:text-lg">
-            Welcome to Salon Elegance. Experience seamless appointments, customized stylist choices, POS cashier checkouts, inventory logs, and real-time dashboard notifications.
+            Welcome to Salon Shyani. Experience seamless appointments, customized stylist choices, POS cashier checkouts, inventory logs, and real-time dashboard notifications.
           </p>
         </header>
 
@@ -142,7 +142,7 @@ function HomePage() {
 
       {/* Footer */}
       <footer className="h-12 border-t border-slate-200 bg-white flex items-center justify-center text-xs text-slate-400">
-        © 2026 Salon Elegance Management System. All rights reserved.
+        © 2026 Salon Shyani Management System. All rights reserved.
       </footer>
     </div>
   );

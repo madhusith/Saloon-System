@@ -3,7 +3,7 @@ import Joi from 'joi';
 export const createUserSchema = Joi.object({
   body: Joi.object({
     fullName: Joi.string().trim().max(100).required(),
-    email: Joi.string().trim().email().lowercase().required(),
+    email: Joi.string().trim().email({ tlds: false }).lowercase().required(),
     phone: Joi.string().trim().allow('', null).default(null),
     role: Joi.string().valid('CUSTOMER', 'STAFF', 'CASHIER', 'ADMIN').required(),
     status: Joi.string().valid('ACTIVE', 'INACTIVE', 'SUSPENDED').default('ACTIVE'),
@@ -21,7 +21,7 @@ export const createUserSchema = Joi.object({
 export const updateUserSchema = Joi.object({
   body: Joi.object({
     fullName: Joi.string().trim().max(100),
-    email: Joi.string().trim().email().lowercase(),
+    email: Joi.string().trim().email({ tlds: false }).lowercase(),
     phone: Joi.string().trim().allow('', null),
     // Profile updates
     specialization: Joi.string().trim().allow('', null),
