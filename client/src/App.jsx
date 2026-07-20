@@ -20,8 +20,11 @@ import CashierLayout from './layouts/CashierLayout.jsx';
 // Pages
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import UsersList from './pages/admin/UsersList.jsx';
+import ServicesList from './pages/admin/ServicesList.jsx';
 import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
 import StaffDashboard from './pages/staff/StaffDashboard.jsx';
+import StaffSchedules from './pages/staff/StaffSchedules.jsx';
+import StaffUnavailability from './pages/staff/StaffUnavailability.jsx';
 import CashierDashboard from './pages/cashier/CashierDashboard.jsx';
 
 function HomePage() {
@@ -181,6 +184,7 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersList />} />
+          <Route path="services" element={<ServicesList />} />
         </Route>
 
         <Route
@@ -203,6 +207,8 @@ function App() {
           }
         >
           <Route index element={<StaffDashboard />} />
+          <Route path="schedule" element={<StaffSchedules />} />
+          <Route path="unavailability" element={<StaffUnavailability />} />
         </Route>
 
         <Route

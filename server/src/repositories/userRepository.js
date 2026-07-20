@@ -298,7 +298,7 @@ export const userRepository = {
     query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     params.push(Number(limit), Number(offset));
 
-    const [users] = await pool.execute(query, params);
+    const [users] = await pool.query(query, params);
 
     return { users, total };
   }

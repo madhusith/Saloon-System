@@ -1,7 +1,7 @@
 # Task Progress
 
 ## Current Phase
-Phase 1 — Project Foundation
+Phase 4 — Appointment Booking
 
 ## Completed
 - [x] Read `SALON_MANAGEMENT_SYSTEM_CODEX_MASTER_PLAN.md` completely
@@ -34,12 +34,14 @@ Phase 1 — Project Foundation
 - [x] Role dashboard placeholder routes added
 - [x] Ran frontend and verified routing layouts via automated browser tests
 - [x] Validated backend health check and frontend routing together
+- [x] **Phase 2 — Authentication & Users:** Customer registration, email verification endpoints/logs, login authentication, JWT token refresh interceptor, custom Joi TLD email validators, and Admin User management CRUD views.
+- [x] **Phase 3 — Services & Staff Management:** Created database schemas for services, staff schedules, and blocked unavailable leave periods. Implemented service, staff assignment, schedule hours and leaf slots repositories, controllers, validations, and routes. Created administrative Service CRUD list views, weekly shifts panels, and unavailability block inputs.
 
 ## In Progress
-- None (Phase 1 is fully complete and verified!)
+- None (Phase 3 is fully complete and verified!)
 
 ## Next
-- Phase 2 — Database and Authentication setup
+- Phase 4 — Appointment Booking (Customer booking flow, slots generation, stylist select, and double-booking protection)
 
 ## Known Issues
 - None.
