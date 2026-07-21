@@ -24,6 +24,9 @@ import ServicesList from './pages/admin/ServicesList.jsx';
 import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
 import StaffDashboard from './pages/staff/StaffDashboard.jsx';
 import StaffSchedules from './pages/staff/StaffSchedules.jsx';
+import BookAppointment from './pages/customer/BookAppointment.jsx';
+import CustomerAppointments from './pages/customer/CustomerAppointments.jsx';
+import AdminAppointments from './pages/admin/AdminAppointments.jsx';
 import StaffUnavailability from './pages/staff/StaffUnavailability.jsx';
 import CashierDashboard from './pages/cashier/CashierDashboard.jsx';
 
@@ -185,7 +188,9 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersList />} />
           <Route path="services" element={<ServicesList />} />
+          <Route path="appointments" element={<AdminAppointments />} />
         </Route>
+
 
         <Route
           path="/customer"
@@ -196,7 +201,10 @@ function App() {
           }
         >
           <Route index element={<CustomerDashboard />} />
+          <Route path="book" element={<BookAppointment />} />
+          <Route path="appointments" element={<CustomerAppointments />} />
         </Route>
+
 
         <Route
           path="/staff"
