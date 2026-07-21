@@ -1,7 +1,7 @@
 # Task Progress
 
 ## Current Phase
-Phase 4 — Appointment Booking
+Phase 5 — Queue Management & Billing/Invoicing
 
 ## Completed
 - [x] Read `SALON_MANAGEMENT_SYSTEM_CODEX_MASTER_PLAN.md` completely
@@ -36,12 +36,13 @@ Phase 4 — Appointment Booking
 - [x] Validated backend health check and frontend routing together
 - [x] **Phase 2 — Authentication & Users:** Customer registration, email verification endpoints/logs, login authentication, JWT token refresh interceptor, custom Joi TLD email validators, and Admin User management CRUD views.
 - [x] **Phase 3 — Services & Staff Management:** Created database schemas for services, staff schedules, and blocked unavailable leave periods. Implemented service, staff assignment, schedule hours and leaf slots repositories, controllers, validations, and routes. Created administrative Service CRUD list views, weekly shifts panels, and unavailability block inputs.
+- [x] **Phase 4 — Appointment Booking:** Built tables `appointments` and `appointment_services` with concurrent double-booking protection, dynamic 30-minute slot generation, aggregate booking for "Any Available Stylist", customer booking wizard, personal history panel, and admin queue schedules control.
 
 ## In Progress
-- None (Phase 3 is fully complete and verified!)
+- None (Phase 4 is fully complete and verified!)
 
 ## Next
-- Phase 4 — Appointment Booking (Customer booking flow, slots generation, stylist select, and double-booking protection)
+- Phase 5 — Queue Management & Billing/Invoicing (Live queue monitoring boards, check-in flows, invoice generation, cashier portals, and mock payment settlement)
 
 ## Known Issues
 - None.
