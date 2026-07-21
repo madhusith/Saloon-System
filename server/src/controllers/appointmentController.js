@@ -289,6 +289,40 @@ export const appointmentController = {
     },
 
     /**
+ * Update appointment status (Admin / Cashier / Staff)
+ */
+    async updateAppointmentStatus(req, res, next) {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        try {
+            const appt = await appointmentRepository.findById(id);
+            if (!appt) {
+                return next(new AppError('Appointment not found.', 404));
+            }
+
+            await appointmentRepository.updateStatus(id, status);
+
+            await logAudit({
+                userId: req.user?.id,
+                action: 'APPOINTMENT_STATUS_UPDATED',
+                entityType: 'appointments',
+                entityId: id,
+                oldValuesJson: { status: appt.status },
+                newValuesJson: { status },
+                ipAddress: req.ip
+            });
+
+            return sendSuccess(res, {
+                message: `Appointment status updated to ${status} successfully.`
+            });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+
+    /**
      * List all appointments with pagination and filters
      */
     async listAppointments(req, res, next) {
@@ -327,4 +361,6 @@ export const appointmentController = {
             return next(error);
         }
     }
+
+
 };

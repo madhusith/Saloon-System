@@ -54,3 +54,14 @@ export const listAppointmentsSchema = Joi.object({
         limit: Joi.number().integer().min(1).max(100).default(10)
     })
 });
+
+export const updateStatusSchema = Joi.object({
+    body: Joi.object({
+        status: Joi.string().valid('PENDING', 'CONFIRMED', 'WAITING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW').required()
+    }),
+    params: Joi.object({
+        id: Joi.number().integer().required()
+    }),
+    query: Joi.object().empty({})
+});
+
