@@ -171,8 +171,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="products" element={<ProductManagement />} />
-        <Route path="inventory" element={<InventoryHistory />} />
+
 
 
         {/* Forced Password Change (Authenticated, no role checks) */}
@@ -199,6 +198,14 @@ function App() {
           <Route path="services" element={<ServicesList />} />
           <Route path="appointments" element={<AdminAppointments />} />
         </Route>
+
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<UsersList />} />
+        <Route path="services" element={<ServicesList />} />
+        <Route path="appointments" element={<AdminAppointments />} />
+        <Route path="products" element={<ProductManagement />} />
+        <Route path="inventory" element={<InventoryHistory />} />
+
 
 
         <Route
