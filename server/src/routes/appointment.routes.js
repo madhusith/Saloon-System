@@ -22,5 +22,6 @@ router.post('/', validate(bookAppointmentSchema), appointmentController.createAp
 router.get('/', validate(listAppointmentsSchema), appointmentController.listAppointments);
 router.patch('/:id/cancel', validate(appointmentIdParamSchema), appointmentController.cancelAppointment);
 router.patch('/:id/status', validate(updateStatusSchema), appointmentController.updateAppointmentStatus);
+router.post('/:id/check-in', validate(appointmentIdParamSchema), appointmentController.checkInAppointment);
 
 export default router;

@@ -159,6 +159,18 @@ export const appointmentRepository = {
     },
 
     /**
+     * Check in an appointment (sets status to WAITING and records check_in_time)
+     */
+    async checkIn(id) {
+        await pool.execute(
+            `UPDATE appointments 
+             SET status = 'WAITING', check_in_time = NOW() 
+             WHERE id = ?`,
+            [id]
+        );
+    },
+
+    /**
      * List all appointments with pagination, ordering, and optional filters
      */
     async listAll({ date, status, staffId, customerId, limit = 10, offset = 0 } = {}) {

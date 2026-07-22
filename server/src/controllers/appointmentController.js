@@ -7,6 +7,7 @@ import { emailService } from '../services/emailService.js';
 import { logAudit } from '../services/auditService.js';
 import { AppError } from '../utils/AppError.js';
 import { sendSuccess } from '../utils/apiResponse.js';
+import { emitEvent } from '../sockets/socket.js';
 
 export const appointmentController = {
     /**
@@ -289,8 +290,8 @@ export const appointmentController = {
     },
 
     /**
- * Update appointment status (Admin / Cashier / Staff)
- */
+     * Update appointment status (Admin / Cashier / Staff)
+     */
     async updateAppointmentStatus(req, res, next) {
         const { id } = req.params;
         const { status } = req.body;
@@ -313,8 +314,50 @@ export const appointmentController = {
                 ipAddress: req.ip
             });
 
+            emitEvent('appointment:status-changed', { id, status });
+            emitEvent('queue:updated');
+
             return sendSuccess(res, {
                 message: `Appointment status updated to ${status} successfully.`
+            });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    /**
+     * Check in an appointment (Cashier / Admin)
+     */
+    async checkInAppointment(req, res, next) {
+        const { id } = req.params;
+
+        try {
+            const appt = await appointmentRepository.findById(id);
+            if (!appt) {
+                return next(new AppError('Appointment not found.', 404));
+            }
+
+            if (appt.status === 'CANCELLED' || appt.status === 'NO_SHOW' || appt.status === 'COMPLETED') {
+                return next(new AppError(`Cannot check in an appointment that is ${appt.status}.`, 400));
+            }
+
+            await appointmentRepository.checkIn(id);
+
+            await logAudit({
+                userId: req.user?.id,
+                action: 'APPOINTMENT_CHECKED_IN',
+                entityType: 'appointments',
+                entityId: id,
+                oldValuesJson: { status: appt.status },
+                newValuesJson: { status: 'WAITING' },
+                ipAddress: req.ip
+            });
+
+            emitEvent('appointment:status-changed', { id, status: 'WAITING' });
+            emitEvent('queue:updated');
+
+            return sendSuccess(res, {
+                message: 'Appointment checked in successfully.'
             });
         } catch (error) {
             return next(error);

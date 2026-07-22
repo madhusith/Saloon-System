@@ -29,6 +29,9 @@ import CustomerAppointments from './pages/customer/CustomerAppointments.jsx';
 import AdminAppointments from './pages/admin/AdminAppointments.jsx';
 import StaffUnavailability from './pages/staff/StaffUnavailability.jsx';
 import CashierDashboard from './pages/cashier/CashierDashboard.jsx';
+import QueueBoard from './pages/cashier/QueueBoard.jsx';
+import POS from './pages/cashier/POS.jsx';
+import SalesHistory from './pages/cashier/SalesHistory.jsx';
 
 function HomePage() {
   const { user, logout } = useAuth();
@@ -228,6 +231,9 @@ function App() {
           }
         >
           <Route index element={<CashierDashboard />} />
+          <Route path="queue" element={<QueueBoard />} />
+          <Route path="pos" element={<POS />} />
+          <Route path="sales" element={<SalesHistory />} />
         </Route>
 
         {/* Catch-all */}
