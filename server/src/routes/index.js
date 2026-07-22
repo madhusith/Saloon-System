@@ -8,8 +8,10 @@ import appointmentRoutes from './appointment.routes.js';
 import productRoutes from './product.routes.js';
 import posRoutes from './pos.routes.js';
 import saleRoutes from './sale.routes.js';
+import inventoryRoutes from './inventory.routes.js';
 
 const router = Router();
+
 
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
@@ -20,6 +22,7 @@ router.use('/appointments', appointmentRoutes);
 router.use('/products', productRoutes);
 router.use('/pos', posRoutes);
 router.use('/sales', saleRoutes);
+router.use('/inventory', inventoryRoutes);
 
 export default router;
 
