@@ -197,14 +197,10 @@ function App() {
           <Route path="users" element={<UsersList />} />
           <Route path="services" element={<ServicesList />} />
           <Route path="appointments" element={<AdminAppointments />} />
+          <Route path="products" element={<ProductManagement />} />
+          <Route path="inventory" element={<InventoryHistory />} />
         </Route>
 
-        <Route index element={<AdminDashboard />} />
-        <Route path="users" element={<UsersList />} />
-        <Route path="services" element={<ServicesList />} />
-        <Route path="appointments" element={<AdminAppointments />} />
-        <Route path="products" element={<ProductManagement />} />
-        <Route path="inventory" element={<InventoryHistory />} />
 
 
 
