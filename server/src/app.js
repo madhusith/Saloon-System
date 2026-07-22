@@ -11,7 +11,7 @@ const app = express();
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: env.nodeEnv === 'development' ? 10000 : 100, // Increase limit in development mode
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: {
@@ -20,6 +20,7 @@ const apiLimiter = rateLimit({
     errors: []
   }
 });
+
 
 app.use(helmet());
 app.use(
