@@ -7,7 +7,9 @@ export const AdminLayout = () => {
     { name: 'Admin Dashboard', path: '/admin', exact: true },
     { name: 'User Management', path: '/admin/users' },
     { name: 'Services Management', path: '/admin/services' },
-    { name: 'Appointments Schedule', path: '/admin/appointments' }
+    { name: 'Appointments Schedule', path: '/admin/appointments' },
+    { name: 'Product Catalog', path: '/admin/products' },
+    { name: 'Inventory Log', path: '/admin/inventory' }
   ];
 
   return <DashboardLayout menuLinks={adminLinks} portalName="Admin Panel" />;

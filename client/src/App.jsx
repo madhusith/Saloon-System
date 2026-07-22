@@ -32,6 +32,9 @@ import CashierDashboard from './pages/cashier/CashierDashboard.jsx';
 import QueueBoard from './pages/cashier/QueueBoard.jsx';
 import POS from './pages/cashier/POS.jsx';
 import SalesHistory from './pages/cashier/SalesHistory.jsx';
+import ProductManagement from './pages/admin/ProductManagement.jsx';
+import InventoryHistory from './pages/admin/InventoryHistory.jsx';
+
 
 function HomePage() {
   const { user, logout } = useAuth();
@@ -168,6 +171,9 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="products" element={<ProductManagement />} />
+        <Route path="inventory" element={<InventoryHistory />} />
+
 
         {/* Forced Password Change (Authenticated, no role checks) */}
         <Route
