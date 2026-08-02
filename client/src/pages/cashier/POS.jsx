@@ -38,10 +38,10 @@ export const POS = () => {
     const fetchData = async () => {
       try {
         const [servicesRes, productsRes, staffRes, usersRes] = await Promise.all([
-          api.get('/services?status=ACTIVE'),
-          api.get('/products?status=ACTIVE'),
+          api.get('/services', { params: { status: 'ACTIVE' } }),
+          api.get('/products', { params: { status: 'ACTIVE' } }),
           api.get('/staff'),
-          api.get('/users?role=CUSTOMER&limit=200')
+          api.get('/users', { params: { role: 'CUSTOMER', limit: 200 } })
         ]);
 
         setServicesCatalog(servicesRes.data.data.services || []);
