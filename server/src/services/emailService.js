@@ -225,5 +225,195 @@ export const emailService = {
         errorMessage: error.message
       });
     }
+  },
+
+  /**
+   * Send order confirmation email
+   */
+  async sendOrderPlacedEmail(user, order) {
+    const subject = `Order Confirmed: ${order.order_reference}`;
+    const text = `Hi ${user.fullName || 'there'},\n\nYour order has been placed and paid successfully.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}\nTotal Amount: LKR ${order.total_amount}\n\nWe will notify you when it's ready for pickup.`;
+    const itemsHtml = order.items.map(item => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.product_name_snapshot}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.unit_price).toFixed(2)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.subtotal).toFixed(2)}</td>
+      </tr>
+    `).join('');
+    
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Order Placement Confirmed</h2>
+        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>Thank you for shopping at Salon Shyani. Here is a summary of your online product order:</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <thead>
+            <tr style="background-color: #f8fafc;">
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: left;">Product</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: center;">Qty</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Price</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <p style="font-size: 16px; color: #be185d;">Total: <strong>LKR ${Number(order.total_amount).toFixed(2)}</strong></p>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p><strong>Order Reference:</strong> ${order.order_reference}</p>
+        <p><strong>Scheduled Pickup Date:</strong> ${new Date(order.pickup_date).toLocaleDateString()}</p>
+        <p>We will send another email as soon as your items are packed and ready for pickup at our salon.</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'ORDER_PLACED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send order placed email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send order ready email
+   */
+  async sendOrderReadyEmail(user, order) {
+    const subject = `Your Order is Ready for Pickup: ${order.order_reference}`;
+    const text = `Hi ${user.fullName},\n\nGreat news! Your product order is ready for pickup at Salon Shyani.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Order Ready for Pickup</h2>
+        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>Great news! Your online product order has been packaged and is now ready for pickup at Salon Shyani.</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
+          <p style="margin: 4px 0;"><strong>Order Ref:</strong> ${order.order_reference}</p>
+          <p style="margin: 4px 0;"><strong>Total Items Paid:</strong> LKR ${Number(order.total_amount).toFixed(2)}</p>
+          <p style="margin: 4px 0;"><strong>Scheduled Pickup Date:</strong> ${new Date(order.pickup_date).toLocaleDateString()}</p>
+        </div>
+        
+        <p>Please present your order reference code when picking up your items at the front desk. We look forward to seeing you soon!</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'ORDER_READY',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send order ready email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send order completed email
+   */
+  async sendOrderCompletedEmail(user, order) {
+    const subject = `Order Completed: ${order.order_reference}`;
+    const text = `Hi ${user.fullName},\n\nThank you! Your order has been successfully picked up.\nOrder Reference: ${order.order_reference}`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Order Handed Over</h2>
+        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>This email confirms that you have successfully picked up your product order. Thank you for shopping with us!</p>
+        <p><strong>Order Ref:</strong> ${order.order_reference}</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'ORDER_COMPLETED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send order completed email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send order cancelled email
+   */
+  async sendOrderCancelledEmail(user, order) {
+    const subject = `Order Cancelled: ${order.order_reference}`;
+    const text = `Hi ${user.fullName},\n\nYour order has been cancelled and a full refund has been credited.\nOrder Reference: ${order.order_reference}`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Order Cancellation & Refund</h2>
+        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>Your product order has been successfully cancelled. A full refund of <strong>LKR ${Number(order.total_amount).toFixed(2)}</strong> has been credited back to your account.</p>
+        <p><strong>Order Ref:</strong> ${order.order_reference}</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'ORDER_CANCELLED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send order cancelled email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
   }
 };

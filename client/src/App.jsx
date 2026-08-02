@@ -34,6 +34,12 @@ import POS from './pages/cashier/POS.jsx';
 import SalesHistory from './pages/cashier/SalesHistory.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import InventoryHistory from './pages/admin/InventoryHistory.jsx';
+import ProductShop from './pages/customer/ProductShop.jsx';
+import Cart from './pages/customer/Cart.jsx';
+import Checkout from './pages/customer/Checkout.jsx';
+import MyOrders from './pages/customer/MyOrders.jsx';
+import OrderDetails from './pages/customer/OrderDetails.jsx';
+import OrderManagement from './pages/admin/OrderManagement.jsx';
 
 
 function HomePage() {
@@ -199,6 +205,7 @@ function App() {
           <Route path="appointments" element={<AdminAppointments />} />
           <Route path="products" element={<ProductManagement />} />
           <Route path="inventory" element={<InventoryHistory />} />
+          <Route path="orders" element={<OrderManagement />} />
         </Route>
 
 
@@ -215,6 +222,11 @@ function App() {
           <Route index element={<CustomerDashboard />} />
           <Route path="book" element={<BookAppointment />} />
           <Route path="appointments" element={<CustomerAppointments />} />
+          <Route path="shop" element={<ProductShop />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="orders" element={<MyOrders />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
         </Route>
 
 

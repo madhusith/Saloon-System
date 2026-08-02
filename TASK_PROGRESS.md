@@ -1,7 +1,7 @@
 # Task Progress
 
 ## Current Phase
-Phase 8 — Online Shop
+Phase 9 — Reports and Admin Controls
 
 ## Completed
 - [x] Read `SALON_MANAGEMENT_SYSTEM_CODEX_MASTER_PLAN.md` completely
@@ -39,12 +39,13 @@ Phase 8 — Online Shop
 - [x] **Phase 4 — Appointment Booking:** Built tables `appointments` and `appointment_services` with concurrent double-booking protection, dynamic 30-minute slot generation, aggregate booking for "Any Available Stylist", customer booking wizard, personal history panel, and admin queue schedules control.
 - [x] **Phase 5 — Queue Management & Billing/Invoicing:** Created tables `products`, `sales`, `sale_items`, `payments` and `discount_approvals` via migration. Configured real-time status syncing and broadcast using Socket.IO. Created cashier Live Queue board, checking in appointments, POS billing interface with prefilled bookings, customer lookup, cashier discount limit authorization, card/cash invoicing, and sales invoice history logs with printable receipts. Added stylist controls to start/complete services from dashboard timeline with live queue notifications.
 - [x] **Phase 7 — Products and Inventory:** Product CRUD (Admin), stock management adjustments, paginated stock movements audit logs, low-stock reorder badges and alerts, automatic stock deductions and logging during cashier POS checkouts, and role-based stock adjustment permissions.
+- [x] **Phase 8 — Online Shop:** Created database migration for orders and order_items. Implemented backend repositories, validators, controllers, and routes to handle product order checkouts, mock payment transactions, automatic stock deductions, and customer/admin order cancellations (with stock restoration and mock refunds). Extended emailService with order confirmation, ready, completion, and cancellation notifications. Designed frontend interfaces for product catalogs, carts, mock card checkout payments, customer order histories, and admin order queues.
 
 ## In Progress
 - None
 
 ## Next
-- Phase 8 — Online Shop (Product catalogue, Cart, Checkout, Order creation, Online payment, Order status management, Order emails)
+- Phase 9 — Reports and Admin Controls (Dashboard charts, Revenue reports, Staff reports, Product reports, Appointment reports, Refund and discount reports, Notification logs, Audit logs)
 
 ## Known Issues
 - None.
