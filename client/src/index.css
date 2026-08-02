@@ -77,6 +77,67 @@ textarea {
   animation-delay: 300ms;
 }
 
+@utility animate-gradient {
+  background-size: 100% 200%;
+  animation: movingGradient 10s ease-in-out infinite;
+}
+
+@utility border-beam-btn {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.border-beam-btn::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 60%,
+    rgba(255, 255, 255, 0.95) 80%,
+    rgba(255, 255, 255, 0.95) 90%,
+    transparent 100%
+  );
+  animation: rotateBeam 3.5s linear infinite;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.border-beam-btn::after {
+  content: '';
+  position: absolute;
+  inset: 1.5px;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes movingGradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes rotateBeam {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

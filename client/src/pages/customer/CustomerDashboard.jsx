@@ -43,7 +43,7 @@ export const CustomerDashboard = () => {
   return (
     <div className="space-y-10 animate-fade-in-up">
       {/* High-Contrast Premium Hero Panel */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#05020c] via-[#4c0d38] to-[#f472b6] text-white p-10 md:p-12 shadow-xl shadow-pink-950/20 border border-white/5">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#05020c] via-[#4c0d38] to-[#f472b6] animate-gradient text-white p-10 md:p-12 shadow-xl shadow-pink-950/20 border border-white/5">
         <div className="absolute -top-12 -right-12 h-60 w-60 rounded-full bg-white/5 blur-3xl"></div>
         <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full bg-pink-500/10 blur-2xl"></div>
 
@@ -52,18 +52,18 @@ export const CustomerDashboard = () => {
             Welcome to Salon Shyani
           </span>
           <h1 className="text-4xl font-black tracking-tight md:text-5xl leading-tight">
-            Hello, {user?.fullName}!
+            Hello, {user?.fullName}
           </h1>
           <div className="pt-4 flex flex-wrap gap-4">
             <Link
               to="/customer/book"
-              className="rounded-xl bg-white hover:bg-slate-100 px-7 py-4 text-xs font-black uppercase tracking-wider text-pink-900 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] duration-200"
+              className="rounded-xl bg-white hover:bg-slate-100 px-7 py-4 text-xs font-black uppercase tracking-wider text-pink-900 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] duration-200 border-beam-btn"
             >
               Book New Session
             </Link>
             <Link
               to="/customer/shop"
-              className="rounded-xl bg-pink-700/60 hover:bg-pink-700/80 border border-white/20 px-7 py-4 text-xs font-black uppercase tracking-wider text-white shadow-md hover:shadow-lg transition-all hover:scale-[1.02] duration-200"
+              className="rounded-xl bg-pink-700/60 hover:bg-pink-700/80 border border-white/20 px-7 py-4 text-xs font-black uppercase tracking-wider text-white shadow-md hover:shadow-lg transition-all hover:scale-[1.02] duration-200 border-beam-btn"
             >
               Shop Products
             </Link>
