@@ -296,7 +296,7 @@ export const POS = () => {
                               >
                                 <option value="">Assign Stylist</option>
                                 {stylists.map(st => (
-                                  <option key={st.id} value={st.id}>{st.fullName}</option>
+                                  <option key={st.id} value={st.id}>{st.full_name || st.fullName}</option>
                                 ))}
                               </select>
                             </div>
@@ -403,7 +403,7 @@ export const POS = () => {
               >
                 <option value="">General Walk-in Customer</option>
                 {customers.map(cust => (
-                  <option key={cust.id} value={cust.id}>{cust.fullName} ({cust.phone})</option>
+                  <option key={cust.id} value={cust.id}>{cust.full_name || cust.fullName} ({cust.phone})</option>
                 ))}
               </select>
             </div>
