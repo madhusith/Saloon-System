@@ -12,16 +12,18 @@ import {
 
 const router = Router();
 
-// Secure all endpoints to admin only
+// Secure all endpoints with authentication
 router.use(authenticate);
-router.use(authorize('ADMIN'));
 
-router.get('/', validate(listUsersSchema), userController.listUsers);
-router.get('/:id', validate(userIdParamSchema), userController.getUser);
-router.post('/', validate(createUserSchema), userController.createUser);
-router.patch('/:id', validate(updateUserSchema), userController.updateUser);
-router.patch('/:id/status', validate(updateStatusSchema), userController.updateStatus);
-router.post('/:id/reset-password', validate(userIdParamSchema), userController.resetUserPassword);
-router.delete('/:id', validate(userIdParamSchema), userController.deleteUser);
+// Allow Admins and Cashiers to query/lookup users
+router.get('/', authorize('ADMIN', 'CASHIER'), validate(listUsersSchema), userController.listUsers);
+router.get('/:id', authorize('ADMIN', 'CASHIER'), validate(userIdParamSchema), userController.getUser);
+
+// All other modification actions are strictly ADMIN only
+router.post('/', authorize('ADMIN'), validate(createUserSchema), userController.createUser);
+router.patch('/:id', authorize('ADMIN'), validate(updateUserSchema), userController.updateUser);
+router.patch('/:id/status', authorize('ADMIN'), validate(updateStatusSchema), userController.updateStatus);
+router.post('/:id/reset-password', authorize('ADMIN'), validate(userIdParamSchema), userController.resetUserPassword);
+router.delete('/:id', authorize('ADMIN'), validate(userIdParamSchema), userController.deleteUser);
 
 export default router;
