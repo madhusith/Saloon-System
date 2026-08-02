@@ -2,8 +2,8 @@
 
 :root {
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  color: #111827;
-  background: #f9fafb;
+  color: #f1f5f9;
+  background: #060212;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -27,19 +27,42 @@ textarea {
   font: inherit;
 }
 
+/* Custom background grid & glow spots utilities */
+@utility tech-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(244, 63, 94, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 63, 94, 0.04) 1px, transparent 1px);
+}
+
+@utility glow-spot-1 {
+  background: radial-gradient(circle, rgba(190, 24, 93, 0.12) 0%, rgba(99, 102, 241, 0.02) 70%, transparent 100%);
+}
+
+@utility glow-spot-2 {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(190, 24, 93, 0.02) 75%, transparent 100%);
+}
+
+@utility gradient-text {
+  background-image: linear-gradient(to right, #f472b6, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass-card {
+  background: rgba(15, 10, 30, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(244, 63, 94, 0.12);
+}
+
 @utility animate-fade-in-up {
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @utility animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@utility glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 @utility delay-100 {
@@ -57,7 +80,7 @@ textarea {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;

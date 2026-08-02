@@ -65,121 +65,125 @@ function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between">
-      {/* Navigation */}
-      <nav className="h-16 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-6 md:px-12">
-        <span className="text-xl font-extrabold text-pink-700 tracking-wide">Salon Shyani</span>
+    <div className="min-h-screen bg-[#060212] text-slate-200 flex flex-col justify-between relative overflow-hidden tech-grid">
+      {/* Glow Spots Background */}
+      <div className="absolute top-[-10%] left-[20%] w-[60%] h-[40%] rounded-full glow-spot-1 pointer-events-none z-0"></div>
+      <div className="absolute bottom-[10%] right-[10%] w-[50%] h-[40%] rounded-full glow-spot-2 pointer-events-none z-0"></div>
+
+      {/* Navigation Header */}
+      <nav className="relative h-16 bg-[#0c081e]/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 md:px-12 z-10">
+        <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 tracking-wide">
+          Salon Shyani
+        </span>
         <div className="flex items-center space-x-4">
-          {user ? (
-            <>
-              <span className="text-sm font-semibold text-slate-700">Hi, {user.fullName}</span>
-              <Link
-                to={user.role === 'ADMIN' ? '/admin' : user.role === 'STAFF' ? '/staff' : user.role === 'CASHIER' ? '/cashier' : '/customer'}
-                className="rounded-lg bg-pink-700 px-4 py-2 text-xs font-bold text-white hover:bg-pink-600 transition"
-              >
-                Go to Dashboard
-              </Link>
-              <button
-                onClick={logout}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="rounded-lg bg-pink-700 px-4 py-2 text-xs font-bold text-white hover:bg-pink-600 transition"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition"
-              >
-                Register
-              </Link>
-            </>
-          )}
+          <Link
+            to="/login"
+            className="rounded-xl bg-pink-700 hover:bg-pink-600 px-4 py-2 text-xs font-bold text-white shadow transition-all duration-150"
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/register"
+            className="rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs font-bold text-slate-300 transition-all duration-150"
+          >
+            Register
+          </Link>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-12 flex flex-col justify-center">
+      <main className="relative flex-1 max-w-6xl mx-auto w-full px-6 py-16 flex flex-col justify-center z-10 animate-fade-in-up">
         <header className="text-center max-w-3xl mx-auto space-y-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-pink-700">Premium Management Solution</p>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-6xl">
-            Salon Management System
+          <p className="text-xs font-bold uppercase tracking-widest text-pink-400 font-mono">
+            Premium Management Solution
+          </p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-6xl">
+            Salon <span className="gradient-text">Management System</span>
           </h1>
-          <p className="text-base text-slate-500 leading-relaxed md:text-lg">
-            Welcome to Salon Shyani. Experience seamless appointments, customized stylist choices, POS cashier checkouts, inventory logs, and real-time dashboard notifications.
+          <p className="text-sm text-slate-400 leading-relaxed md:text-base max-w-2xl mx-auto">
+            Experience next-generation appointments, dynamic stylist schedule hours, real-time live queue boards, cashier POS invoicing, inventory loggers, and analytical dashboards.
           </p>
         </header>
 
         {/* Roles Quick Link Cards */}
-        <section className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-pink-200 transition-all duration-200">
+        <section className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 delay-100 animate-fade-in-up">
+          {/* Admin Panel */}
+          <div className="glass-card rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-pink-950/10 hover:shadow-pink-500/5 hover:border-pink-500/30 hover:-translate-y-1.5 transition-all duration-300">
             <div>
-              <span className="text-2xl">👩‍💼</span>
-              <h3 className="mt-4 text-lg font-bold text-slate-900">Admin Panel</h3>
-              <p className="mt-2 text-sm text-slate-500">Configure services, schedules, audit user statuses, and view business reports.</p>
+              <div className="h-10 w-10 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                <span className="text-lg">👩‍💼</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-white tracking-tight">Admin Panel</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">Configure services, stylists hours, check database audits, and compile business summaries.</p>
             </div>
             <Link
               to="/admin"
-              className="mt-6 inline-flex items-center text-xs font-bold text-pink-700 hover:text-pink-600"
+              className="mt-6 inline-flex items-center text-xs font-bold text-pink-400 hover:text-pink-300 group"
             >
-              Enter Portal →
+              <span>Enter Portal</span>
+              <span className="ml-1.5 transition-transform group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-pink-200 transition-all duration-200">
+          {/* Stylist Dashboard */}
+          <div className="glass-card rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-pink-950/10 hover:shadow-pink-500/5 hover:border-pink-500/30 hover:-translate-y-1.5 transition-all duration-300">
             <div>
-              <span className="text-2xl">💇‍♀️</span>
-              <h3 className="mt-4 text-lg font-bold text-slate-900">Stylist Dashboard</h3>
-              <p className="mt-2 text-sm text-slate-500">View daily assigned service sessions, status updates, and personal shift hours.</p>
+              <div className="h-10 w-10 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                <span className="text-lg">💇‍♀️</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-white tracking-tight">Stylist Dashboard</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">View assigned client service sessions, update workloads timeline, and update shift leaves blocks.</p>
             </div>
             <Link
               to="/staff"
-              className="mt-6 inline-flex items-center text-xs font-bold text-pink-700 hover:text-pink-600"
+              className="mt-6 inline-flex items-center text-xs font-bold text-pink-400 hover:text-pink-300 group"
             >
-              Enter Portal →
+              <span>Enter Portal</span>
+              <span className="ml-1.5 transition-transform group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-pink-200 transition-all duration-200">
+          {/* Cashier POS */}
+          <div className="glass-card rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-pink-950/10 hover:shadow-pink-500/5 hover:border-pink-500/30 hover:-translate-y-1.5 transition-all duration-300">
             <div>
-              <span className="text-2xl">💵</span>
-              <h3 className="mt-4 text-lg font-bold text-slate-900">Cashier POS</h3>
-              <p className="mt-2 text-sm text-slate-500">Coordinate checking in walk-in sales, card/cash invoicing, and active queues.</p>
+              <div className="h-10 w-10 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                <span className="text-lg">💵</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-white tracking-tight">Cashier POS</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">Coordinate live client queues checks, record walk-in billing checkouts, and print invoice receipts.</p>
             </div>
             <Link
               to="/cashier"
-              className="mt-6 inline-flex items-center text-xs font-bold text-pink-700 hover:text-pink-600"
+              className="mt-6 inline-flex items-center text-xs font-bold text-pink-400 hover:text-pink-300 group"
             >
-              Enter Portal →
+              <span>Enter Portal</span>
+              <span className="ml-1.5 transition-transform group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-pink-200 transition-all duration-200">
+          {/* Customer Portal */}
+          <div className="glass-card rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-pink-950/10 hover:shadow-pink-500/5 hover:border-pink-500/30 hover:-translate-y-1.5 transition-all duration-300">
             <div>
-              <span className="text-2xl">💅</span>
-              <h3 className="mt-4 text-lg font-bold text-slate-900">Customer Portal</h3>
-              <p className="mt-2 text-sm text-slate-500">Schedule appointments, view booking histories, and browse styling collections.</p>
+              <div className="h-10 w-10 rounded-lg bg-pink-500/10 flex items-center justify-center border border-pink-500/20">
+                <span className="text-lg">💅</span>
+              </div>
+              <h3 className="mt-4 text-base font-bold text-white tracking-tight">Customer Portal</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">Book stylist appointments slots, browse retail product catalogues, and checkout items.</p>
             </div>
             <Link
               to="/customer"
-              className="mt-6 inline-flex items-center text-xs font-bold text-pink-700 hover:text-pink-600"
+              className="mt-6 inline-flex items-center text-xs font-bold text-pink-400 hover:text-pink-300 group"
             >
-              Enter Portal →
+              <span>Enter Portal</span>
+              <span className="ml-1.5 transition-transform group-hover:translate-x-1">→</span>
             </Link>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="h-12 border-t border-slate-200 bg-white flex items-center justify-center text-xs text-slate-400">
-        © 2026 Salon Shyani Management System. All rights reserved.
+      <footer className="relative h-14 border-t border-white/5 bg-[#080414]/30 flex items-center justify-center text-[10px] text-slate-500 font-medium z-10">
+        © 2026 Salon Shyani Management System. Powered by Alibaba Cloud. All rights reserved.
       </footer>
     </div>
   );
