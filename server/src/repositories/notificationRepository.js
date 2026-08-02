@@ -61,5 +61,40 @@ export const notificationRepository = {
       `UPDATE notifications SET ${fields.join(', ')} WHERE id = ?`,
       params
     );
+  },
+
+  /**
+   * List all email notifications with pagination and filters
+   */
+  async listAll({ recipientEmail, status, limit = 20, offset = 0 } = {}) {
+    let query = `
+      SELECT n.*, u.full_name AS user_name 
+      FROM notifications n
+      LEFT JOIN users u ON n.user_id = u.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (recipientEmail) {
+      query += ' AND n.recipient_email LIKE ?';
+      params.push(`%${recipientEmail}%`);
+    }
+
+    if (status) {
+      query += ' AND n.status = ?';
+      params.push(status);
+    }
+
+    // Get count
+    const countQuery = `SELECT COUNT(*) as count FROM (${query}) as t`;
+    const [countRows] = await pool.query(countQuery, params);
+    const total = countRows[0].count;
+
+    // Add ordering and limits
+    query += ' ORDER BY n.created_at DESC LIMIT ? OFFSET ?';
+    params.push(Number(limit), Number(offset));
+
+    const [notifications] = await pool.query(query, params);
+    return { notifications, total };
   }
 };

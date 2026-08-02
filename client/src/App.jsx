@@ -40,10 +40,29 @@ import Checkout from './pages/customer/Checkout.jsx';
 import MyOrders from './pages/customer/MyOrders.jsx';
 import OrderDetails from './pages/customer/OrderDetails.jsx';
 import OrderManagement from './pages/admin/OrderManagement.jsx';
+import AuditLogs from './pages/admin/AuditLogs.jsx';
+import NotificationLogs from './pages/admin/NotificationLogs.jsx';
+import ReportPanel from './pages/admin/ReportPanel.jsx';
 
 
 function HomePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-pink-700 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    const redirectPath = user.role === 'ADMIN' ? '/admin' 
+                       : user.role === 'STAFF' ? '/staff' 
+                       : user.role === 'CASHIER' ? '/cashier' 
+                       : '/customer';
+    return <Navigate to={redirectPath} replace />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between">
@@ -206,6 +225,9 @@ function App() {
           <Route path="products" element={<ProductManagement />} />
           <Route path="inventory" element={<InventoryHistory />} />
           <Route path="orders" element={<OrderManagement />} />
+          <Route path="reports" element={<ReportPanel />} />
+          <Route path="audit-logs" element={<AuditLogs />} />
+          <Route path="email-logs" element={<NotificationLogs />} />
         </Route>
 
 

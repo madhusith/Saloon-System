@@ -10,6 +10,7 @@ import posRoutes from './pos.routes.js';
 import saleRoutes from './sale.routes.js';
 import inventoryRoutes from './inventory.routes.js';
 import orderRoutes from './order.routes.js';
+import reportRoutes from './report.routes.js';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use('/pos', posRoutes);
 router.use('/sales', saleRoutes);
 router.use('/inventory', inventoryRoutes);
 router.use('/orders', orderRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;
 

@@ -1,7 +1,7 @@
 # Task Progress
 
 ## Current Phase
-Phase 9 — Reports and Admin Controls
+Phase 10 — Deployment
 
 ## Completed
 - [x] Read `SALON_MANAGEMENT_SYSTEM_CODEX_MASTER_PLAN.md` completely
@@ -40,12 +40,13 @@ Phase 9 — Reports and Admin Controls
 - [x] **Phase 5 — Queue Management & Billing/Invoicing:** Created tables `products`, `sales`, `sale_items`, `payments` and `discount_approvals` via migration. Configured real-time status syncing and broadcast using Socket.IO. Created cashier Live Queue board, checking in appointments, POS billing interface with prefilled bookings, customer lookup, cashier discount limit authorization, card/cash invoicing, and sales invoice history logs with printable receipts. Added stylist controls to start/complete services from dashboard timeline with live queue notifications.
 - [x] **Phase 7 — Products and Inventory:** Product CRUD (Admin), stock management adjustments, paginated stock movements audit logs, low-stock reorder badges and alerts, automatic stock deductions and logging during cashier POS checkouts, and role-based stock adjustment permissions.
 - [x] **Phase 8 — Online Shop:** Created database migration for orders and order_items. Implemented backend repositories, validators, controllers, and routes to handle product order checkouts, mock payment transactions, automatic stock deductions, and customer/admin order cancellations (with stock restoration and mock refunds). Extended emailService with order confirmation, ready, completion, and cancellation notifications. Designed frontend interfaces for product catalogs, carts, mock card checkout payments, customer order histories, and admin order queues.
+- [x] **Phase 9 — Reports and Admin Controls:** Extended audit and notification repositories to fetch historical lists. Created reportController compiling statistics for top metrics dashboard, revenue trends, service category ranking, product sales volumes, and staff workloads. Upgraded the Admin Dashboard with custom responsive SVG charts and introduced panels to search logs and print reports.
 
 ## In Progress
 - None
 
 ## Next
-- Phase 9 — Reports and Admin Controls (Dashboard charts, Revenue reports, Staff reports, Product reports, Appointment reports, Refund and discount reports, Notification logs, Audit logs)
+- Phase 10 — Deployment (Azure hosting configuration, prod environment variables, blob storage, prod email/payment setup)
 
 ## Known Issues
 - None.
