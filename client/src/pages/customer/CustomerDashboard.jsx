@@ -16,15 +16,15 @@ export const CustomerDashboard = () => {
       setError('');
       
       const [apptRes, orderRes] = await Promise.all([
-        api.get('/appointments/my?limit=3'),
-        api.get('/orders/my?limit=3')
+        api.get('/appointments', { params: { limit: 3 } }),
+        api.get('/orders/my', { params: { limit: 3 } })
       ]);
 
       if (apptRes.data && apptRes.data.success) {
         setAppointments(apptRes.data.data.appointments || []);
       }
       if (orderRes.data && orderRes.data.success) {
-        setOrders(res => orderRes.data.data.orders || []);
+        setOrders(orderRes.data.data.orders || []);
       }
     } catch (err) {
       console.warn('Failed to load active user lists:', err);
