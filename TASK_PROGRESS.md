@@ -1,7 +1,7 @@
 # Task Progress
 
 ## Current Phase
-Phase 7 — Products and Inventory
+Phase 8 — Online Shop
 
 ## Completed
 - [x] Read `SALON_MANAGEMENT_SYSTEM_CODEX_MASTER_PLAN.md` completely
@@ -38,12 +38,13 @@ Phase 7 — Products and Inventory
 - [x] **Phase 3 — Services & Staff Management:** Created database schemas for services, staff schedules, and blocked unavailable leave periods. Implemented service, staff assignment, schedule hours and leaf slots repositories, controllers, validations, and routes. Created administrative Service CRUD list views, weekly shifts panels, and unavailability block inputs.
 - [x] **Phase 4 — Appointment Booking:** Built tables `appointments` and `appointment_services` with concurrent double-booking protection, dynamic 30-minute slot generation, aggregate booking for "Any Available Stylist", customer booking wizard, personal history panel, and admin queue schedules control.
 - [x] **Phase 5 — Queue Management & Billing/Invoicing:** Created tables `products`, `sales`, `sale_items`, `payments` and `discount_approvals` via migration. Configured real-time status syncing and broadcast using Socket.IO. Created cashier Live Queue board, checking in appointments, POS billing interface with prefilled bookings, customer lookup, cashier discount limit authorization, card/cash invoicing, and sales invoice history logs with printable receipts. Added stylist controls to start/complete services from dashboard timeline with live queue notifications.
+- [x] **Phase 7 — Products and Inventory:** Product CRUD (Admin), stock management adjustments, paginated stock movements audit logs, low-stock reorder badges and alerts, automatic stock deductions and logging during cashier POS checkouts, and role-based stock adjustment permissions.
 
 ## In Progress
 - None
 
 ## Next
-- Phase 7 — Products and Inventory (Product CRUD, Stock management, Stock movements, Low-stock alerts, Automatic stock deduction, Stock adjustment permissions)
+- Phase 8 — Online Shop (Product catalogue, Cart, Checkout, Order creation, Online payment, Order status management, Order emails)
 
 ## Known Issues
 - None.

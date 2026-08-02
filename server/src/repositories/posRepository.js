@@ -83,6 +83,23 @@ export const posRepository = {
             'UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?',
             [item.quantity, item.productId]
           );
+
+          // Log stock movement
+          await connection.execute(
+            `INSERT INTO stock_movements (
+              product_id, movement_type, quantity, stock_before, stock_after, 
+              reference_type, reference_id, note, created_by
+            ) VALUES (?, 'POS_SALE', ?, ?, ?, 'SALE', ?, ?, ?)`,
+            [
+              item.productId,
+              -item.quantity,
+              currentStock,
+              currentStock - item.quantity,
+              saleId,
+              `POS checkout reduction - Invoice: ${invoiceNumber}`,
+              cashierId
+            ]
+          );
         }
       }
 
