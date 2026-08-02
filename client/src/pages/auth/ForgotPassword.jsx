@@ -35,8 +35,11 @@ export const ForgotPassword = () => {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div>
-          <div className="flex justify-center text-pink-600 font-extrabold text-3xl tracking-tight">
-            Salon Shyani
+          <div className="flex flex-col items-center space-y-2.5 justify-center">
+            <img src="/logo.png" alt="Salon Shyani Logo" className="h-16 w-auto rounded-lg object-contain shadow-sm" />
+            <div className="text-pink-600 font-extrabold text-3xl tracking-tight">
+              Salon Shyani
+            </div>
           </div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">
             Reset your password

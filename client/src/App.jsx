@@ -72,9 +72,12 @@ function HomePage() {
 
       {/* Navigation Header */}
       <nav className="relative h-16 bg-[#0c081e]/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 md:px-12 z-10">
-        <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 tracking-wide">
-          Salon Shyani
-        </span>
+        <div className="flex items-center space-x-2.5">
+          <img src="/logo.png" alt="Salon Shyani Logo" className="h-8 w-auto rounded-md object-contain" />
+          <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 tracking-wide">
+            Salon Shyani
+          </span>
+        </div>
         <div className="flex items-center space-x-4">
           <Link
             to="/login"
