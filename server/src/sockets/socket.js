@@ -3,9 +3,22 @@ import { Server } from 'socket.io';
 let io = null;
 
 export const initSocket = (server, clientUrl) => {
+  const allowedOrigins = [clientUrl];
+  const corsOrigin = (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.includes(origin) ||
+      (process.env.NODE_ENV !== 'production' && /^https?:\/\/localhost(:\d+)?$/.test(origin));
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  };
+
   io = new Server(server, {
     cors: {
-      origin: clientUrl || '*',
+      origin: corsOrigin,
       methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
       credentials: true
     }

@@ -23,9 +23,22 @@ const apiLimiter = rateLimit({
 
 
 app.use(helmet());
+const allowedOrigins = [env.clientUrl];
+const corsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true);
+  const isAllowed = allowedOrigins.includes(origin) ||
+    (env.nodeEnv === 'development' && /^https?:\/\/localhost(:\d+)?$/.test(origin));
+  
+  if (isAllowed) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
+
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin: corsOrigin,
     credentials: true
   })
 );
