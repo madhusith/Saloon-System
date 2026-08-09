@@ -432,8 +432,13 @@ export const BookAppointment = () => {
                             <span className="col-span-2 font-bold text-slate-800">{totalDuration} minutes</span>
                         </div>
 
+                        <div className="grid grid-cols-3 py-2 border-b border-slate-50">
+                            <span className="font-semibold text-slate-400 uppercase tracking-wide text-xs">Payment Method:</span>
+                            <span className="col-span-2 font-bold text-slate-800">Pay at Salon (Cash / Card)</span>
+                        </div>
+
                         <div className="grid grid-cols-3 py-2 border-b border-slate-100">
-                            <span className="font-semibold text-slate-400 uppercase tracking-wide text-xs">Total Bill:</span>
+                            <span className="font-semibold text-slate-400 uppercase tracking-wide text-xs">Estimated Bill:</span>
                             <span className="col-span-2 font-extrabold text-pink-700 text-lg">LKR {totalPrice.toLocaleString()}</span>
                         </div>
 
@@ -461,7 +466,7 @@ export const BookAppointment = () => {
                             disabled={bookingLoading}
                             className="inline-flex rounded-lg bg-pink-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pink-600 shadow-sm disabled:opacity-50 transition"
                         >
-                            {bookingLoading ? 'Securing Slot...' : 'Confirm & Book Appointment'}
+                            {bookingLoading ? 'Securing Slot...' : 'Confirm & Reserve Appointment'}
                         </button>
                     </div>
                 </div>
@@ -493,6 +498,10 @@ export const BookAppointment = () => {
                         <div className="flex justify-between">
                             <span className="text-slate-400 font-semibold uppercase tracking-wider text-xs">Total Price:</span>
                             <strong className="text-pink-700">LKR {Number(bookingSuccess.totalPrice).toLocaleString()}</strong>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-400 font-semibold uppercase tracking-wider text-xs">Payment Method:</span>
+                            <strong className="text-slate-900 font-bold">Pay at Salon</strong>
                         </div>
                     </div>
 
