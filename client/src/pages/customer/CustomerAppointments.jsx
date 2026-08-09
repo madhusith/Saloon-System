@@ -123,6 +123,13 @@ export const CustomerAppointments = () => {
                                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xxs font-bold uppercase tracking-wider border ${getStatusBadgeClass(appt.status)}`}>
                                             {appt.status}
                                         </span>
+                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xxs font-bold uppercase tracking-wider border ${
+                                            appt.payment_status === 'PAID'
+                                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                                : 'bg-slate-100 text-slate-850 border-slate-200'
+                                        }`}>
+                                            {appt.payment_status === 'PAID' ? 'Paid' : 'Pay at Salon'}
+                                        </span>
                                     </div>
 
                                     <p className="text-sm font-bold text-slate-900">
