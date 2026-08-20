@@ -111,8 +111,22 @@ export const DashboardLayout = ({ menuLinks, portalName }) => {
         </header>
 
         {/* Content Outlet */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 p-6 md:p-8">
+            <Outlet />
+          </div>
+          <footer className="bg-white border-t border-slate-200/80 py-4 px-6 md:px-8 text-center text-xs text-slate-400 font-medium">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 max-w-7xl mx-auto">
+              <span>© {new Date().getFullYear()} Beauty Lane - LK. All rights reserved.</span>
+              <div className="flex items-center justify-center space-x-4">
+                <a href="#" className="hover:text-pink-600 transition duration-150">Privacy Policy</a>
+                <span className="text-slate-300 font-light">•</span>
+                <a href="#" className="hover:text-pink-600 transition duration-150">Terms of Service</a>
+                <span className="text-slate-300 font-light">•</span>
+                <a href="#" className="hover:text-pink-600 transition duration-150">Support Helpdesk</a>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
     </div>
