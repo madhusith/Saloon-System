@@ -22,7 +22,11 @@ const apiLimiter = rateLimit({
 });
 
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+  })
+);
 const allowedOrigins = [env.clientUrl];
 const corsOrigin = (origin, callback) => {
   if (!origin) return callback(null, true);
