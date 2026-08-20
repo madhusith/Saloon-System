@@ -260,10 +260,19 @@ export const userRepository = {
    * @param {Number} id 
    */
   async delete(id) {
-    await pool.execute(
-      'UPDATE users SET deleted_at = NOW() WHERE id = ?',
-      [id]
-    );
+    const [userRows] = await pool.execute('SELECT email FROM users WHERE id = ?', [id]);
+    if (userRows.length > 0) {
+      const deletedEmail = `${userRows[0].email}_deleted_${Date.now()}`;
+      await pool.execute(
+        'UPDATE users SET email = ?, deleted_at = NOW(), status = "INACTIVE" WHERE id = ?',
+        [deletedEmail, id]
+      );
+    } else {
+      await pool.execute(
+        'UPDATE users SET deleted_at = NOW(), status = "INACTIVE" WHERE id = ?',
+        [id]
+      );
+    }
   },
 
   /**

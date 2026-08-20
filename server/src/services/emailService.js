@@ -246,7 +246,7 @@ export const emailService = {
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Placement Confirmed</h2>
         <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
-        <p>Thank you for shopping at Salon Shyani. Here is a summary of your online product order:</p>
+        <p>Thank you for shopping at Beauty Lane. Here is a summary of your online product order:</p>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
           <thead>
@@ -301,12 +301,12 @@ export const emailService = {
    */
   async sendOrderReadyEmail(user, order) {
     const subject = `Your Order is Ready for Pickup: ${order.order_reference}`;
-    const text = `Hi ${user.fullName},\n\nGreat news! Your product order is ready for pickup at Salon Shyani.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}`;
+    const text = `Hi ${user.fullName},\n\nGreat news! Your product order is ready for pickup at Beauty Lane.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Ready for Pickup</h2>
         <p>Hi <strong>${user.fullName}</strong>,</p>
-        <p>Great news! Your online product order has been packaged and is now ready for pickup at Salon Shyani.</p>
+        <p>Great news! Your online product order has been packaged and is now ready for pickup at Beauty Lane.</p>
         
         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
           <p style="margin: 4px 0;"><strong>Order Ref:</strong> ${order.order_reference}</p>
@@ -410,6 +410,106 @@ export const emailService = {
       });
     } catch (error) {
       console.error('Failed to send order cancelled email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send appointment booked confirmation email
+   */
+  async sendAppointmentBookedEmail(user, appointment, services, staff) {
+    const subject = `Appointment Confirmed: ${appointment.booking_reference}`;
+    const servicesText = services.map(s => s.name).join(', ');
+    const servicesHtml = services.map(s => `<li>${s.name} (LKR ${Number(s.price).toFixed(2)})</li>`).join('');
+    const staffName = staff ? (staff.full_name || staff.name) : 'Any Available Stylist';
+    
+    const text = `Hi ${user.fullName || 'there'},\n\nYour appointment is confirmed!\nBooking Reference: ${appointment.booking_reference}\nDate: ${appointment.appointment_date}\nTime: ${appointment.start_time.slice(0, 5)}\nStylist: ${staffName}\nServices: ${servicesText}\nTotal: LKR ${Number(appointment.total_price).toFixed(2)}\n\nThank you for choosing us!`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Appointment Confirmed</h2>
+        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>Your appointment has been successfully scheduled. Here are the details:</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
+          <p style="margin: 4px 0;"><strong>Booking Ref:</strong> ${appointment.booking_reference}</p>
+          <p style="margin: 4px 0;"><strong>Date:</strong> ${appointment.appointment_date}</p>
+          <p style="margin: 4px 0;"><strong>Time:</strong> ${appointment.start_time.slice(0, 5)}</p>
+          <p style="margin: 4px 0;"><strong>Stylist:</strong> ${staffName}</p>
+        </div>
+        
+        <p><strong>Services Booked:</strong></p>
+        <ul style="padding-left: 20px;">
+          ${servicesHtml}
+        </ul>
+        <p style="font-size: 16px; color: #be185d;">Total Price: <strong>LKR ${Number(appointment.total_price).toFixed(2)}</strong></p>
+        <p>We look forward to seeing you at your scheduled time!</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'APPOINTMENT_BOOKED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send appointment booked email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send appointment cancelled notification email
+   */
+  async sendAppointmentCancelledEmail(user, appointment, reason) {
+    const subject = `Appointment Cancelled: ${appointment.booking_reference}`;
+    const text = `Hi ${user.fullName || 'there'},\n\nThis email confirms that your appointment (${appointment.booking_reference}) scheduled for ${appointment.appointment_date} at ${appointment.start_time.slice(0, 5)} has been cancelled.\n\nReason: ${reason || 'Not provided'}\n\nIf you have any questions, please contact us.`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Appointment Cancelled</h2>
+        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>This email confirms that your appointment has been cancelled.</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
+          <p style="margin: 4px 0;"><strong>Booking Ref:</strong> ${appointment.booking_reference}</p>
+          <p style="margin: 4px 0;"><strong>Original Date:</strong> ${appointment.appointment_date}</p>
+          <p style="margin: 4px 0;"><strong>Original Time:</strong> ${appointment.start_time.slice(0, 5)}</p>
+          <p style="margin: 4px 0; color: #e11d48;"><strong>Cancellation Reason:</strong> ${reason || 'Not provided'}</p>
+        </div>
+        <p>If this cancellation was made in error or you would like to reschedule, please visit our online booking portal or call us directly.</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'APPOINTMENT_CANCELLED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send appointment cancelled email:', error);
       await notificationRepository.updateNotificationStatus(notificationId, {
         status: 'FAILED',
         errorMessage: error.message

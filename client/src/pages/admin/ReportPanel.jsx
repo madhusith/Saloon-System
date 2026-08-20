@@ -64,7 +64,7 @@ export const ReportPanel = () => {
 
       {/* Print only header */}
       <div className="hidden print:block border-b-2 border-slate-900 pb-4 mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Salon Shyani — Administrative Performance Report</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Beauty Lane — Administrative Performance Report</h1>
         <p className="text-xs text-slate-500">Generated on {new Date().toLocaleString()}</p>
       </div>
 

@@ -2,6 +2,7 @@
 import { appointmentRepository } from '../repositories/appointmentRepository.js';
 import { serviceRepository } from '../repositories/serviceRepository.js';
 import { staffRepository } from '../repositories/staffRepository.js';
+import { userRepository } from '../repositories/userRepository.js';
 import { calculateAvailableSlots, parseTimeToMinutes, minutesToTimeStr } from '../utils/slotCalculator.js';
 import { emailService } from '../services/emailService.js';
 import { logAudit } from '../services/auditService.js';
@@ -246,6 +247,22 @@ export const appointmentController = {
                 ipAddress: req.ip
             });
 
+            // Trigger email notification in background
+            (async () => {
+                try {
+                    const customer = await userRepository.findById(customerId);
+                    if (customer) {
+                        let staffMember = null;
+                        if (chosenStaffId > 0) {
+                            staffMember = await staffRepository.findById(chosenStaffId);
+                        }
+                        await emailService.sendAppointmentBookedEmail(customer, newAppt, services, staffMember);
+                    }
+                } catch (emailErr) {
+                    console.error('Failed to send appointment booked email in background:', emailErr);
+                }
+            })();
+
             return sendSuccess(res, {
                 statusCode: 201,
                 message: 'Appointment booked successfully.',
@@ -288,6 +305,18 @@ export const appointmentController = {
 
             emitEvent('appointment:status-changed', { id, status: 'CANCELLED' });
             emitEvent('queue:updated');
+
+            // Trigger email notification in background
+            (async () => {
+                try {
+                    const customer = await userRepository.findById(appt.customer_id);
+                    if (customer) {
+                        await emailService.sendAppointmentCancelledEmail(customer, appt, reason);
+                    }
+                } catch (emailErr) {
+                    console.error('Failed to send appointment cancellation email in background:', emailErr);
+                }
+            })();
 
             return sendSuccess(res, {
                 message: 'Appointment cancelled successfully.'
