@@ -27,12 +27,15 @@ export const authController = {
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
+      const isSmtpConfigured = !!process.env.SMTP_HOST;
+      const emailVerifiedAt = isSmtpConfigured ? null : new Date();
+
       const user = await userRepository.createCustomer({
         fullName,
         email,
         phone,
         passwordHash,
-        emailVerifiedAt: null,
+        emailVerifiedAt,
         status: 'ACTIVE'
       });
 
@@ -61,7 +64,9 @@ export const authController = {
 
       return sendSuccess(res, {
         statusCode: 201,
-        message: 'Registration successful. Please check your email to verify your account.'
+        message: isSmtpConfigured
+          ? 'Registration successful. Please check your email to verify your account.'
+          : 'Registration successful. Your account is pre-verified (Development Mode).'
       });
     } catch (error) {
       return next(error);
