@@ -36,21 +36,16 @@ export const CustomerAppointments = () => {
     }, [page]);
 
     const handleCancelAppointment = async (id, refStr, dateStr, timeStr) => {
-        // Check 24-hour limit on client side too
-        const apptDatetime = new Date(`${dateStr}T${timeStr}`);
-        const hoursDiff = (apptDatetime - new Date()) / (1000 * 60 * 60);
-
-        if (hoursDiff < 24) {
-            alert('Appointments can only be cancelled at least 24 hours in advance. Please call the salon directly.');
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to cancel appointment ${refStr}?`)) {
+        const reason = window.prompt(`Please provide a reason for cancelling appointment ${refStr}:`);
+        if (reason === null) return; // User cancelled prompt
+        
+        if (!reason.trim()) {
+            alert('A reason is required to cancel your appointment.');
             return;
         }
 
         try {
-            const res = await api.patch(`/appointments/${id}/cancel`);
+            const res = await api.patch(`/appointments/${id}/cancel`, { reason });
             if (res.data && res.data.success) {
                 alert('Appointment cancelled successfully.');
                 fetchAppointments();
@@ -61,12 +56,7 @@ export const CustomerAppointments = () => {
     };
 
     const isCancellable = (appt) => {
-        if (['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(appt.status)) {
-            return false;
-        }
-        const apptDatetime = new Date(`${appt.appointment_date}T${appt.start_time}`);
-        const hoursDiff = (apptDatetime - new Date()) / (1000 * 60 * 60);
-        return hoursDiff >= 24;
+        return !['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(appt.status);
     };
 
     const getStatusBadgeClass = (status) => {

@@ -116,7 +116,10 @@ export const appointmentController = {
         const { serviceIds, staffId, appointmentDate, startTime, notes } = req.body;
 
         // Default to logged-in user if they are a Customer
-        const customerId = req.user.id;
+        let customerId = req.user.id;
+        if ((req.user.role === 'ADMIN' || req.user.role === 'CASHIER') && req.body.customerId) {
+            customerId = Number(req.body.customerId);
+        }
 
         try {
             const services = await Promise.all(serviceIds.map((id) => serviceRepository.findById(id)));
@@ -210,6 +213,15 @@ export const appointmentController = {
             const dateNoDash = appointmentDate.replace(/-/g, '');
             const bookingReference = `SAL-${dateNoDash}-${hexRandom}`;
 
+            // If booked by CASHIER or ADMIN and the appointment is for today, default status to WAITING and set check_in_time
+            let initialStatus = 'CONFIRMED';
+            let checkInTimeVal = null;
+            const todayStr = new Date().toISOString().split('T')[0];
+            if ((req.user.role === 'CASHIER' || req.user.role === 'ADMIN') && appointmentDate === todayStr) {
+                initialStatus = 'WAITING';
+                checkInTimeVal = new Date();
+            }
+
             const newAppt = await appointmentRepository.create({
                 customerId,
                 staffId: chosenStaffId,
@@ -220,7 +232,9 @@ export const appointmentController = {
                 totalDurationMinutes: totalDuration,
                 totalPrice,
                 notes,
-                serviceIds
+                serviceIds,
+                status: initialStatus,
+                checkInTime: checkInTimeVal
             });
 
             await logAudit({
@@ -247,6 +261,7 @@ export const appointmentController = {
      */
     async cancelAppointment(req, res, next) {
         const { id } = req.params;
+        const { reason } = req.body;
 
         try {
             const appt = await appointmentRepository.findById(id);
@@ -259,17 +274,7 @@ export const appointmentController = {
                 return next(new AppError('Unauthorized to cancel this appointment.', 403));
             }
 
-            // Customer > 24 hour restriction check
-            if (req.user?.role === 'CUSTOMER') {
-                const apptDatetime = new Date(`${appt.appointment_date}T${appt.start_time}`);
-                const hoursDiff = (apptDatetime - new Date()) / (1000 * 60 * 60);
-
-                if (hoursDiff < 24) {
-                    return next(new AppError('Appointments can only be cancelled at least 24 hours in advance.', 400));
-                }
-            }
-
-            await appointmentRepository.updateStatus(id, 'CANCELLED');
+            await appointmentRepository.updateStatus(id, 'CANCELLED', reason);
 
             await logAudit({
                 userId: req.user?.id,
@@ -277,9 +282,12 @@ export const appointmentController = {
                 entityType: 'appointments',
                 entityId: id,
                 oldValuesJson: { status: appt.status },
-                newValuesJson: { status: 'CANCELLED' },
+                newValuesJson: { status: 'CANCELLED', cancellationReason: reason },
                 ipAddress: req.ip
             });
+
+            emitEvent('appointment:status-changed', { id, status: 'CANCELLED' });
+            emitEvent('queue:updated');
 
             return sendSuccess(res, {
                 message: 'Appointment cancelled successfully.'

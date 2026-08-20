@@ -87,6 +87,10 @@ export const userController = {
     } = req.body;
 
     try {
+      if (req.user.role === 'CASHIER' && role !== 'CUSTOMER') {
+        return next(new AppError('Unauthorized: Cashiers can only register CUSTOMER accounts.', 403));
+      }
+
       const existingUser = await userRepository.findByEmail(email);
       if (existingUser) {
         return next(new AppError('Email is already registered.', 400));

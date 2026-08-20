@@ -136,6 +136,10 @@ export const ProductShop = () => {
           ) : (
             products.map((product) => {
               const outOfStock = product.stock_quantity <= 0;
+              const serverUrl = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : 'http://localhost:5050';
+              const imageUrl = product.image_url 
+                ? (product.image_url.startsWith('http') ? product.image_url : `${serverUrl}${product.image_url}`) 
+                : null;
               return (
                 <div
                   key={product.id}
@@ -144,7 +148,15 @@ export const ProductShop = () => {
                   <div>
                     {/* Image placeholder or product category */}
                     <div className="h-40 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden mb-4 relative">
-                      <span className="text-4xl">🧴</span>
+                      {imageUrl ? (
+                        <img 
+                          src={imageUrl} 
+                          alt={product.name} 
+                          className="h-full w-full object-cover" 
+                        />
+                      ) : (
+                        <span className="text-4xl">🧴</span>
+                      )}
                       <span className="absolute top-2.5 right-2.5 rounded-md bg-slate-200/60 px-1.5 py-0.5 text-[9px] font-extrabold text-slate-600 uppercase">
                         {product.category}
                       </span>

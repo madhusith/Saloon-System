@@ -10,6 +10,7 @@ export const ProductManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState('CREATE'); // CREATE or EDIT
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const [form, setForm] = useState({
         sku: '',
         name: '',
@@ -18,7 +19,8 @@ export const ProductManagement = () => {
         costPrice: '',
         sellingPrice: '',
         stockQuantity: 0,
-        reorderLevel: 5
+        reorderLevel: 5,
+        imageUrl: ''
     });
 
     // Adjust stock state
@@ -49,6 +51,35 @@ export const ProductManagement = () => {
         fetchProducts();
     }, []);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            setUploadingImage(true);
+            setError('');
+            const res = await api.post('/products/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            if (res.data && res.data.success) {
+                setForm(prev => ({
+                    ...prev,
+                    imageUrl: res.data.data.imageUrl
+                }));
+            }
+        } catch (err) {
+            console.error('Failed to upload image:', err);
+            setError('Failed to upload product image.');
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
     const handleOpenCreate = () => {
         setModalMode('CREATE');
         setForm({
@@ -59,7 +90,8 @@ export const ProductManagement = () => {
             costPrice: '',
             sellingPrice: '',
             stockQuantity: 0,
-            reorderLevel: 5
+            reorderLevel: 5,
+            imageUrl: ''
         });
         setSelectedProduct(null);
         setShowModal(true);
@@ -75,7 +107,8 @@ export const ProductManagement = () => {
             costPrice: Number(product.cost_price),
             sellingPrice: Number(product.selling_price),
             reorderLevel: Number(product.reorder_level),
-            status: product.status
+            status: product.status,
+            imageUrl: product.image_url || ''
         });
         setShowModal(true);
     };
@@ -186,14 +219,27 @@ export const ProductManagement = () => {
                                     </tr>
                                 ) : (
                                     products.map((prod) => {
-                                        const isLowStock = prod.stock_quantity <= prod.reorder_level;
-                                        return (
-                                            <tr key={prod.id} className="hover:bg-slate-50/20">
-                                                <td className="px-6 py-4 font-mono font-bold text-slate-900">{prod.sku}</td>
-                                                <td className="px-6 py-4">
-                                                    <span className="font-bold text-slate-800 block">{prod.name}</span>
-                                                    <span className="text-[11px] text-slate-400 truncate max-w-xs block">{prod.description || 'No description'}</span>
-                                                </td>
+                                         const isLowStock = prod.stock_quantity <= prod.reorder_level;
+                                         const serverUrl = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : 'http://localhost:5050';
+                                         const imageUrl = prod.image_url 
+                                             ? (prod.image_url.startsWith('http') ? prod.image_url : `${serverUrl}${prod.image_url}`) 
+                                             : null;
+                                         return (
+                                             <tr key={prod.id} className="hover:bg-slate-50/20">
+                                                 <td className="px-6 py-4 font-mono font-bold text-slate-900">{prod.sku}</td>
+                                                 <td className="px-6 py-4 flex items-center space-x-3">
+                                                     <div className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                         {imageUrl ? (
+                                                             <img src={imageUrl} alt={prod.name} className="h-full w-full object-cover" />
+                                                         ) : (
+                                                             <span className="text-xl">🧴</span>
+                                                         )}
+                                                     </div>
+                                                     <div>
+                                                         <span className="font-bold text-slate-800 block">{prod.name}</span>
+                                                         <span className="text-[11px] text-slate-400 truncate max-w-xs block">{prod.description || 'No description'}</span>
+                                                     </div>
+                                                 </td>
                                                 <td className="px-6 py-4 text-xs font-semibold">{prod.category}</td>
                                                 <td className="px-6 py-4 text-right font-medium">LKR {Number(prod.cost_price).toFixed(2)}</td>
                                                 <td className="px-6 py-4 text-right font-bold text-slate-900">LKR {Number(prod.selling_price).toFixed(2)}</td>
@@ -281,6 +327,32 @@ export const ProductManagement = () => {
                                     placeholder="Optional details..."
                                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-pink-500 focus:outline-none h-16"
                                 />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-600 uppercase">Product Photo</label>
+                                <div className="flex items-center space-x-4">
+                                    <div className="h-16 w-16 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        {form.imageUrl ? (
+                                            <img 
+                                                src={form.imageUrl.startsWith('http') ? form.imageUrl : `${api.defaults.baseURL.replace('/api', '')}${form.imageUrl}`} 
+                                                alt="Preview" 
+                                                className="h-full w-full object-cover" 
+                                            />
+                                        ) : (
+                                            <span className="text-2xl">🧴</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                                        />
+                                        {uploadingImage && <p className="text-xs text-pink-700 font-bold mt-1 animate-pulse">Uploading photo...</p>}
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

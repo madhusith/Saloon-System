@@ -145,6 +145,7 @@ export const posController = {
       const checkoutResult = await posRepository.checkout({
         invoiceNumber,
         cashierId,
+        cashierName: req.user.fullName,
         customerId,
         appointmentId,
         saleType,

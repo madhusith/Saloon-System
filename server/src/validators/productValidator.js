@@ -11,7 +11,8 @@ export const createProductSchema = Joi.object({
             'number.min': 'Selling price must be greater than or equal to cost price.'
         }),
         stockQuantity: Joi.number().integer().min(0).default(0),
-        reorderLevel: Joi.number().integer().min(0).default(5)
+        reorderLevel: Joi.number().integer().min(0).default(5),
+        imageUrl: Joi.string().trim().allow('', null).default(null)
     }),
     params: Joi.object().empty({}),
     query: Joi.object().empty({})
@@ -27,8 +28,9 @@ export const updateProductSchema = Joi.object({
             'number.min': 'Selling price must be greater than or equal to cost price.'
         }),
         reorderLevel: Joi.number().integer().min(0),
-        status: Joi.string().valid('ACTIVE', 'INACTIVE')
-    }),
+        status: Joi.string().valid('ACTIVE', 'INACTIVE'),
+        imageUrl: Joi.string().trim().allow('', null)
+    }).min(1),
     params: Joi.object({
         id: Joi.number().integer().required()
     }),

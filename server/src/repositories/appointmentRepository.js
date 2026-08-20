@@ -67,8 +67,8 @@ export const appointmentRepository = {
             const [apptResult] = await connection.execute(
                 `INSERT INTO appointments (
           customer_id, staff_id, booking_reference, appointment_date, 
-          start_time, end_time, total_duration_minutes, total_price, notes
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          start_time, end_time, total_duration_minutes, total_price, notes, status, check_in_time
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     customerId,
                     staffId,
@@ -78,7 +78,9 @@ export const appointmentRepository = {
                     endTime,
                     totalDurationMinutes,
                     totalPrice,
-                    notes
+                    notes,
+                    appointmentData.status || 'CONFIRMED',
+                    appointmentData.checkInTime || null
                 ]
             );
 
@@ -148,14 +150,18 @@ export const appointmentRepository = {
         return this.findById(rows[0].id);
     },
 
-    /**
-     * Update appointment status (PENDING, CONFIRMED, etc.)
-     */
-    async updateStatus(id, status) {
-        await pool.execute(
-            'UPDATE appointments SET status = ? WHERE id = ?',
-            [status, id]
-        );
+    async updateStatus(id, status, cancellationReason = null) {
+        if (status === 'CANCELLED') {
+            await pool.execute(
+                'UPDATE appointments SET status = ?, cancellation_reason = ?, deleted_at = NOW() WHERE id = ?',
+                [status, cancellationReason, id]
+            );
+        } else {
+            await pool.execute(
+                'UPDATE appointments SET status = ? WHERE id = ?',
+                [status, id]
+            );
+        }
     },
 
     /**

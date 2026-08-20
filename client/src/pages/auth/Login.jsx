@@ -11,14 +11,6 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      const from = location.state?.from?.pathname || getRedirectPath(user.role);
-      navigate(from, { replace: true });
-    }
-  }, [user, navigate, location]);
-
   const getRedirectPath = (role) => {
     switch (role) {
       case 'ADMIN': return '/admin';
@@ -28,6 +20,14 @@ export const Login = () => {
       default: return '/';
     }
   };
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      const from = location.state?.from?.pathname || getRedirectPath(user.role);
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

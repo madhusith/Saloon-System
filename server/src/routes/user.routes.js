@@ -19,8 +19,8 @@ router.use(authenticate);
 router.get('/', authorize('ADMIN', 'CASHIER'), validate(listUsersSchema), userController.listUsers);
 router.get('/:id', authorize('ADMIN', 'CASHIER'), validate(userIdParamSchema), userController.getUser);
 
-// All other modification actions are strictly ADMIN only
-router.post('/', authorize('ADMIN'), validate(createUserSchema), userController.createUser);
+// All other modification actions are strictly ADMIN only (except customer registration by Cashier)
+router.post('/', authorize('ADMIN', 'CASHIER'), validate(createUserSchema), userController.createUser);
 router.patch('/:id', authorize('ADMIN'), validate(updateUserSchema), userController.updateUser);
 router.patch('/:id/status', authorize('ADMIN'), validate(updateStatusSchema), userController.updateStatus);
 router.post('/:id/reset-password', authorize('ADMIN'), validate(userIdParamSchema), userController.resetUserPassword);

@@ -14,6 +14,7 @@ export const bookAppointmentSchema = Joi.object({
         startTime: Joi.string().pattern(timeRegex).required().messages({
             'string.pattern.base': 'Start time must be in HH:MM or HH:MM:SS format.'
         }),
+        customerId: Joi.number().integer().positive().optional(),
         notes: Joi.string().trim().allow('', null).default(null)
     }),
     params: Joi.object().empty({}),
