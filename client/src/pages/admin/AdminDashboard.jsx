@@ -65,7 +65,7 @@ export const AdminDashboard = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Welcome back, {user?.fullName}!</h1>
-          <p className="mt-1 text-sm text-slate-500 font-medium">Here is a quick overview of Salon Shyani today.</p>
+          <p className="mt-1 text-sm text-slate-500 font-medium">Here is a quick overview of Beauty Lane today.</p>
         </div>
         <button
           onClick={fetchDashboardData}

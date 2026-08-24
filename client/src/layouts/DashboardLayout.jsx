@@ -29,8 +29,8 @@ export const DashboardLayout = ({ menuLinks, portalName }) => {
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between px-6 border-b border-slate-800">
           <div className="flex items-center space-x-2.5">
-            <img src="/logo.png" alt="Salon Shyani Logo" className="h-8 w-auto rounded-md object-contain" />
-            <span className="text-lg font-bold tracking-tight text-white">Salon Shyani</span>
+            <img src="/logo.png" alt="Beauty Lane Logo" className="h-8 w-auto rounded-md object-contain" />
+            <span className="text-lg font-bold tracking-tight text-white">Beauty Lane</span>
           </div>
           <button className="lg:hidden text-slate-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-6 w-6">
@@ -111,8 +111,22 @@ export const DashboardLayout = ({ menuLinks, portalName }) => {
         </header>
 
         {/* Content Outlet */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 p-6 md:p-8">
+            <Outlet />
+          </div>
+          <footer className="bg-white border-t border-slate-200/80 py-4 px-6 md:px-8 text-center text-xs text-slate-400 font-medium">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 max-w-7xl mx-auto">
+              <span>© {new Date().getFullYear()} Beauty Lane - LK. All rights reserved.</span>
+              <div className="flex items-center justify-center space-x-4">
+                <a href="#" className="hover:text-pink-600 transition duration-150">Privacy Policy</a>
+                <span className="text-slate-300 font-light">•</span>
+                <a href="#" className="hover:text-pink-600 transition duration-150">Terms of Service</a>
+                <span className="text-slate-300 font-light">•</span>
+                <a href="#" className="hover:text-pink-600 transition duration-150">Support Helpdesk</a>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
     </div>

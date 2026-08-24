@@ -7,6 +7,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleLogoutLocal = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   // Initialize Auth State from LocalStorage and verify with /auth/me
   useEffect(() => {
     const initializeAuth = async () => {
@@ -50,13 +57,6 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener('auth_session_expired', handleSessionExpired);
     };
   }, []);
-
-  const handleLogoutLocal = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
 
   /**
    * Log in user

@@ -49,7 +49,7 @@ export const CustomerDashboard = () => {
 
         <div className="relative space-y-6 max-w-2xl">
           <span className="inline-block rounded-full bg-pink-500/20 border border-pink-400/30 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-pink-200">
-            Welcome to Salon Shyani
+            Welcome to Beauty Lane
           </span>
           <h1 className="text-4xl font-black tracking-tight md:text-5xl leading-tight">
             Hello, {user?.fullName}

@@ -8,6 +8,7 @@ export const posRepository = {
     const {
       invoiceNumber,
       cashierId,
+      cashierName,
       customerId,
       appointmentId,
       saleType,
@@ -107,8 +108,8 @@ export const posRepository = {
       const [payResult] = await connection.execute(
         `INSERT INTO payments (
           customer_id, appointment_id, sale_id, payment_method, 
-          amount, transaction_reference, payment_status, recorded_by, paid_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?, NOW())`,
+          amount, transaction_reference, payment_status, recorded_by, cashier_name, paid_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?, ?, NOW())`,
         [
           customerId || null,
           appointmentId || null,
@@ -116,7 +117,8 @@ export const posRepository = {
           paymentMethod,
           totalAmount,
           transactionReference || null,
-          cashierId
+          cashierId,
+          cashierName || null
         ]
       );
 

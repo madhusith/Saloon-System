@@ -49,12 +49,12 @@ export const productRepository = {
    * Create a new catalog product
    */
   async create(productData) {
-    const { sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel } = productData;
+    const { sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel, imageUrl } = productData;
     const [result] = await pool.execute(
       `INSERT INTO products (
-        sku, name, description, category, cost_price, selling_price, stock_quantity, reorder_level
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel]
+        sku, name, description, category, cost_price, selling_price, stock_quantity, reorder_level, image_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel, imageUrl || null]
     );
     return { id: result.insertId, ...productData };
   },
@@ -74,7 +74,8 @@ export const productRepository = {
       costPrice: 'cost_price',
       sellingPrice: 'selling_price',
       reorderLevel: 'reorder_level',
-      status: 'status'
+      status: 'status',
+      imageUrl: 'image_url'
     };
 
     for (const [key, val] of Object.entries(productData)) {

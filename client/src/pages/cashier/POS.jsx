@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api.js';
 
+let cartItemIdCounter = 0;
+const generateCartItemId = (prefix, id) => {
+  return `${prefix}-${id}-${Date.now()}-${cartItemIdCounter++}`;
+};
+
 export const POS = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -79,7 +84,7 @@ export const POS = () => {
     setCartItems([
       ...cartItems,
       {
-        id: `service-${s.id}-${Date.now()}`,
+        id: generateCartItemId('service', s.id),
         itemType: 'SERVICE',
         serviceId: s.id,
         productId: null,
@@ -107,7 +112,7 @@ export const POS = () => {
       setCartItems([
         ...cartItems,
         {
-          id: `product-${p.id}-${Date.now()}`,
+          id: generateCartItemId('product', p.id),
           itemType: 'PRODUCT',
           serviceId: null,
           productId: p.id,

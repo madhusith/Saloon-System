@@ -44,7 +44,7 @@ export const productController = {
    * Create a new product (Admin only)
    */
   async createProduct(req, res, next) {
-    const { sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel } = req.body;
+    const { sku, name, description, category, costPrice, sellingPrice, stockQuantity, reorderLevel, imageUrl } = req.body;
     const userId = req.user.id;
 
     if (req.user.role !== 'ADMIN') {
@@ -69,7 +69,8 @@ export const productController = {
         costPrice,
         sellingPrice,
         stockQuantity,
-        reorderLevel
+        reorderLevel,
+        imageUrl
       });
 
       // Log initial stock movement if quantity > 0
@@ -216,6 +217,29 @@ export const productController = {
       return next(error);
     } finally {
       connection.release();
+    }
+  },
+
+  /**
+   * Upload image file for a product (Admin only)
+   */
+  async uploadImage(req, res, next) {
+    if (req.user.role !== 'ADMIN') {
+      return next(new AppError('Unauthorized: Only administrators can upload product photos.', 403));
+    }
+
+    try {
+      if (!req.file) {
+        return next(new AppError('No file uploaded.', 400));
+      }
+
+      const filePath = `/uploads/${req.file.filename}`;
+      return sendSuccess(res, {
+        message: 'Image uploaded successfully.',
+        data: { imageUrl: filePath }
+      });
+    } catch (error) {
+      return next(error);
     }
   }
 };

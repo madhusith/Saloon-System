@@ -275,6 +275,13 @@ export const BookAppointment = () => {
                             >
                                 Choose Stylist →
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/customer')}
+                                className="w-full mt-2 inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                            >
+                                Cancel Booking
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -326,6 +333,13 @@ export const BookAppointment = () => {
                             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                         >
                             Back
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/customer')}
+                            className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                        >
+                            Cancel
                         </button>
                         <button
                             onClick={() => setStep(3)}
@@ -391,6 +405,13 @@ export const BookAppointment = () => {
                                 className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                             >
                                 Back
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/customer')}
+                                className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                            >
+                                Cancel
                             </button>
                             <button
                                 onClick={() => setStep(4)}
@@ -460,6 +481,13 @@ export const BookAppointment = () => {
                             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                         >
                             Back
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/customer')}
+                            className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                        >
+                            Cancel
                         </button>
                         <button
                             onClick={handleBookingSubmit}

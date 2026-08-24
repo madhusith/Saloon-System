@@ -72,7 +72,7 @@ export const InvoiceView = ({ saleId, onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-start border-b border-slate-100 pb-6">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 uppercase">Salon Shyani</h1>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 uppercase">Beauty Lane</h1>
             <p className="text-xs text-slate-400 font-semibold mt-1">123 Galle Road, Colombo 03</p>
             <p className="text-xs text-slate-400 font-semibold">Tel: +94 11 234 5678</p>
           </div>
@@ -150,7 +150,7 @@ export const InvoiceView = ({ saleId, onClose }) => {
 
         {/* Footer note */}
         <div className="border-t border-slate-100 pt-6 text-center text-[10px] text-slate-400 font-semibold">
-          <p>Thank you for choosing Salon Shyani! Have a wonderful day.</p>
+          <p>Thank you for choosing Beauty Lane! Have a wonderful day.</p>
           <p className="mt-1">Software Powered by Antigravity OS.</p>
         </div>
 

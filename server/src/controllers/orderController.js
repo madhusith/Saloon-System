@@ -128,8 +128,8 @@ export const orderController = {
       await connection.execute(
         `INSERT INTO payments (
           customer_id, order_id, payment_method, amount, currency, 
-          transaction_reference, gateway_name, payment_status, recorded_by, paid_at
-        ) VALUES (?, ?, 'ONLINE', ?, 'LKR', ?, 'MOCK_GATEWAY', 'PAID', ?, NOW())`,
+          transaction_reference, gateway_name, payment_status, recorded_by, cashier_name, paid_at
+        ) VALUES (?, ?, 'ONLINE', ?, 'LKR', ?, 'MOCK_GATEWAY', 'PAID', ?, 'Online Order', NOW())`,
         [customerId, orderId, totalAmount, transactionReference, customerId]
       );
 

@@ -31,7 +31,7 @@ export const MyOrders = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">My Orders</h1>
-        <p className="mt-1 text-sm text-slate-500 font-medium">View and track status of all product pickup orders placed at Salon Shyani.</p>
+        <p className="mt-1 text-sm text-slate-500 font-medium">View and track status of all product pickup orders placed at Beauty Lane.</p>
       </div>
 
       {error && (

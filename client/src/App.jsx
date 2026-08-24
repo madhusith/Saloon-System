@@ -73,9 +73,9 @@ function HomePage() {
       {/* Navigation Header */}
       <nav className="relative h-16 bg-[#0c081e]/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 md:px-12 z-10">
         <div className="flex items-center space-x-2.5">
-          <img src="/logo.png" alt="Salon Shyani Logo" className="h-8 w-auto rounded-md object-contain" />
+          <img src="/logo.png" alt="Beauty Lane Logo" className="h-8 w-auto rounded-md object-contain" />
           <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 tracking-wide">
-            Salon Shyani
+            Beauty Lane
           </span>
         </div>
         <div className="flex items-center space-x-4">
@@ -186,7 +186,7 @@ function HomePage() {
 
       {/* Footer */}
       <footer className="relative h-14 border-t border-white/5 bg-[#080414]/30 flex items-center justify-center text-[10px] text-slate-500 font-medium z-10">
-        © 2026 Salon Shyani Management System. Powered by Alibaba Cloud. All rights reserved.
+        © 2026 Beauty Lane Management System. Powered by Alibaba Cloud. All rights reserved.
       </footer>
     </div>
   );
