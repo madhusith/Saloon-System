@@ -25,7 +25,7 @@ export const appointmentController = {
                 return next(new AppError('One or more selected services are invalid or inactive.', 400));
             }
 
-            const totalDuration = services.reduce((sum, s) => sum + s.duration_minutes, 0);
+            const totalDuration = services.reduce((sum, s) => sum + (Number(s.duration_minutes) || 30), 0);
             const targetDayOfWeek = new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
             const staffIdNum = Number(staffId || 0);
@@ -37,12 +37,10 @@ export const appointmentController = {
                     return next(new AppError('Selected stylist profile is invalid or inactive.', 400));
                 }
 
-                // Verify stylist offers all selected services
-                const assignedServices = await serviceRepository.getAssignedStaffIds(staffIdNum); // wait, getAssignedStaffIds returns staff assigned to a service.
-                // Let's get services offered by this staff member:
+                // Verify stylist offers all selected services (empty assignments mean open to all stylists)
                 const offeredServices = await Promise.all(sIds.map(async (sid) => {
                     const sids = await serviceRepository.getAssignedStaffIds(sid);
-                    return sids.includes(staffIdNum);
+                    return sids.length === 0 || sids.includes(staffIdNum);
                 }));
 
                 if (offeredServices.some((offered) => !offered)) {
@@ -72,10 +70,10 @@ export const appointmentController = {
                 const activeStylists = allStylists.filter((s) => s.status === 'ACTIVE');
 
                 const slotSets = await Promise.all(activeStylists.map(async (stylist) => {
-                    // Check if stylist offers all selected services
+                    // Check if stylist offers all selected services (empty assignments mean open to all stylists)
                     const offeredServices = await Promise.all(sIds.map(async (sid) => {
                         const sids = await serviceRepository.getAssignedStaffIds(sid);
-                        return sids.includes(stylist.id);
+                        return sids.length === 0 || sids.includes(stylist.id);
                     }));
 
                     if (offeredServices.some((offered) => !offered)) {
@@ -128,8 +126,8 @@ export const appointmentController = {
                 return next(new AppError('One or more selected services are invalid.', 400));
             }
 
-            const totalDuration = services.reduce((sum, s) => sum + s.duration_minutes, 0);
-            const totalPrice = services.reduce((sum, s) => sum + Number(s.price), 0);
+            const totalDuration = services.reduce((sum, s) => sum + (Number(s.duration_minutes) || 30), 0);
+            const totalPrice = services.reduce((sum, s) => sum + Number(s.price || 0), 0);
 
             // Calculate end time
             const startMin = parseTimeToMinutes(startTime);
@@ -142,10 +140,10 @@ export const appointmentController = {
             const targetDayOfWeek = new Date(`${appointmentDate}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
             if (chosenStaffId > 0) {
-                // 1. Specific stylist validation
+                // 1. Specific stylist validation (empty assignment means open to all stylists)
                 const offeredServices = await Promise.all(serviceIds.map(async (sid) => {
                     const sids = await serviceRepository.getAssignedStaffIds(sid);
-                    return sids.includes(chosenStaffId);
+                    return sids.length === 0 || sids.includes(chosenStaffId);
                 }));
 
                 if (offeredServices.some((offered) => !offered)) {
@@ -177,10 +175,10 @@ export const appointmentController = {
                 let availableStylistId = null;
 
                 for (const stylist of activeStylists) {
-                    // Check service fit
+                    // Check service fit (empty assignment means open to all stylists)
                     const offeredServices = await Promise.all(serviceIds.map(async (sid) => {
                         const sids = await serviceRepository.getAssignedStaffIds(sid);
-                        return sids.includes(stylist.id);
+                        return sids.length === 0 || sids.includes(stylist.id);
                     }));
 
                     if (offeredServices.some((offered) => !offered)) continue;

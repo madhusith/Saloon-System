@@ -6,6 +6,7 @@ export const CashierLayout = () => {
     { name: 'Dashboard', path: '/cashier', exact: true },
     { name: 'Live Queue', path: '/cashier/queue' },
     { name: 'Walk-In / POS', path: '/cashier/pos' },
+    { name: 'Product Orders', path: '/cashier/orders' },
     { name: 'Sales History', path: '/cashier/sales' }
   ];
 

@@ -214,6 +214,17 @@ export const QueueBoard = () => {
     }
   };
 
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      const res = await api.patch(`/appointments/${id}/status`, { status });
+      if (res.data && res.data.success) {
+        fetchTodayAppointments();
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update status');
+    }
+  };
+
   // Group appointments by status
   const confirmed = appointments.filter(appt => appt.status === 'CONFIRMED' || appt.status === 'PENDING');
   const waiting = appointments.filter(appt => appt.status === 'WAITING');
@@ -333,12 +344,20 @@ export const QueueBoard = () => {
                     <p className="mt-1 text-xs text-slate-500 font-medium">Stylist: {appt.staff_name}</p>
                     {appt.notes && <p className="mt-2 text-xs italic text-slate-400 truncate">"{appt.notes}"</p>}
                     
-                    <button
-                      onClick={() => navigate('/cashier/pos', { state: { appointment: appt } })}
-                      className="mt-4 w-full rounded-lg bg-pink-700 py-1.5 text-xs font-bold text-white hover:bg-pink-600 transition"
-                    >
-                      Checkout / Bill
-                    </button>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <button
+                        onClick={() => handleUpdateStatus(appt.id, 'IN_PROGRESS')}
+                        className="w-full rounded-lg bg-sky-600 hover:bg-sky-500 py-2 text-xs font-bold text-white shadow-sm transition flex items-center justify-center gap-1.5"
+                      >
+                        <span>▶</span> Start Service (Move to In Progress)
+                      </button>
+                      <button
+                        onClick={() => navigate('/cashier/pos', { state: { appointment: appt } })}
+                        className="w-full rounded-lg border border-slate-200 bg-white hover:bg-slate-50 py-1.5 text-xs font-semibold text-slate-600 transition"
+                      >
+                        Checkout / Prepay
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -369,12 +388,20 @@ export const QueueBoard = () => {
                     </p>
                     <p className="mt-1 text-xs text-slate-500 font-medium">Stylist: {appt.staff_name}</p>
                     
-                    <button
-                      onClick={() => navigate('/cashier/pos', { state: { appointment: appt } })}
-                      className="mt-4 w-full rounded-lg bg-pink-700 py-1.5 text-xs font-bold text-white hover:bg-pink-600 transition"
-                    >
-                      Checkout / Bill
-                    </button>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <button
+                        onClick={() => handleUpdateStatus(appt.id, 'COMPLETED')}
+                        className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 py-2 text-xs font-bold text-white shadow-sm transition flex items-center justify-center gap-1.5"
+                      >
+                        <span>✓</span> Finish Service (Move to Finished)
+                      </button>
+                      <button
+                        onClick={() => navigate('/cashier/pos', { state: { appointment: appt } })}
+                        className="w-full rounded-lg border border-slate-200 bg-white hover:bg-slate-50 py-1.5 text-xs font-semibold text-slate-600 transition"
+                      >
+                        Checkout / Bill Now
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -393,20 +420,50 @@ export const QueueBoard = () => {
                 <p className="text-center text-xs text-slate-400 py-8 font-medium">None finished yet</p>
               ) : (
                 finished.map(appt => (
-                  <div key={appt.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm opacity-70">
+                  <div key={appt.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-slate-300 transition-all">
                     <div className="flex justify-between items-start">
                       <h4 className="text-sm font-bold text-slate-800">{appt.customer_name}</h4>
-                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
-                        appt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
-                        appt.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-700'
-                      }`}>
-                        {appt.status}
-                      </span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
+                          appt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
+                          appt.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-700'
+                        }`}>
+                          {appt.status}
+                        </span>
+                        {appt.status === 'COMPLETED' && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {appt.payment_status === 'PAID' ? 'PAID' : 'PAYMENT PENDING'}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">Stylist: {appt.staff_name}</p>
-                    <p className="text-[11px] font-semibold text-slate-600 mt-1 truncate">
+                    <p className="mt-1 text-xs text-slate-500 font-medium">Stylist: {appt.staff_name}</p>
+                    <p className="text-[11px] font-semibold text-pink-700 mt-1 truncate">
                       {appt.services.map(s => s.name).join(', ')}
                     </p>
+
+                    {appt.status === 'COMPLETED' && (
+                      appt.payment_status !== 'PAID' ? (
+                        <button
+                          onClick={() => navigate('/cashier/pos', { state: { appointment: appt } })}
+                          className="mt-3 w-full rounded-lg bg-pink-700 hover:bg-pink-600 py-2 text-xs font-bold text-white shadow-md transition flex items-center justify-center gap-1.5"
+                        >
+                          <span>💳</span> Checkout / Bill
+                        </button>
+                      ) : (
+                        <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
+                          <span className="text-xxs font-bold text-emerald-700">✓ Fully Paid</span>
+                          <button
+                            onClick={() => navigate('/cashier/sales')}
+                            className="text-xxs font-bold text-pink-700 hover:underline flex items-center gap-0.5"
+                          >
+                            <span>Receipt / Sales</span> →
+                          </button>
+                        </div>
+                      )
+                    )}
                   </div>
                 ))
               )}
@@ -527,7 +584,9 @@ export const QueueBoard = () => {
                         onChange={() => handleServiceToggle(s.id)}
                         className="rounded border-slate-300 text-pink-700 focus:ring-pink-500"
                       />
-                      <span>{s.name} (LKR {Number(s.price).toFixed(2)})</span>
+                      <span>
+                        {s.name} {s.price !== null && s.price !== undefined ? `(LKR ${Number(s.price).toFixed(2)})` : '(Price/Time varies - ask salon)'}
+                      </span>
                     </label>
                   ))}
                 </div>

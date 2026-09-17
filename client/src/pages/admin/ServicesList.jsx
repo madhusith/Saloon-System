@@ -96,8 +96,8 @@ export const ServicesList = () => {
     setName('');
     setDescription('');
     setServiceCategory('HAIR');
-    setDurationMinutes(30);
-    setPrice(1000);
+    setDurationMinutes('');
+    setPrice('');
     setImageUrl('');
     setServiceStatus('ACTIVE');
     setModalOpen(true);
@@ -111,8 +111,8 @@ export const ServicesList = () => {
     setName(service.name);
     setDescription(service.description || '');
     setServiceCategory(service.category);
-    setDurationMinutes(service.duration_minutes);
-    setPrice(Number(service.price));
+    setDurationMinutes(service.duration_minutes !== null && service.duration_minutes !== undefined ? service.duration_minutes : '');
+    setPrice(service.price !== null && service.price !== undefined ? service.price : '');
     setImageUrl(service.image_url || '');
     setServiceStatus(service.status);
     setModalOpen(true);
@@ -146,8 +146,8 @@ export const ServicesList = () => {
       name,
       description,
       category: serviceCategory,
-      durationMinutes: Number(durationMinutes),
-      price: Number(price),
+      durationMinutes: durationMinutes !== '' && durationMinutes !== null ? Number(durationMinutes) : null,
+      price: price !== '' && price !== null ? Number(price) : null,
       imageUrl: imageUrl || null,
       status: serviceStatus
     };
@@ -343,8 +343,26 @@ export const ServicesList = () => {
                         {s.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-600">{s.duration_minutes} mins</td>
-                    <td className="px-6 py-4 font-bold text-pink-700">LKR {Number(s.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td className="px-6 py-4 font-medium text-slate-600">
+                      {s.duration_minutes ? (
+                        `${s.duration_minutes} mins`
+                      ) : (
+                        <span className="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
+                          Variable (30m default)
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {s.price !== null && s.price !== undefined ? (
+                        <span className="font-bold text-pink-700">
+                          LKR {Number(s.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                      ) : (
+                        <span className="inline-block rounded-md bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 border border-amber-200 leading-snug">
+                          Price and Time can be Different according to your preferences and ask from the salon
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold leading-5 ${
                         s.status === 'ACTIVE'
@@ -492,11 +510,14 @@ export const ServicesList = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Duration (Minutes)</label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Duration (Minutes)</label>
+                        <span className="text-[11px] font-medium text-slate-400">Optional</span>
+                      </div>
                       <input
                         type="number"
-                        required
                         min="1"
+                        placeholder="e.g. 30 (Leave empty if variable)"
                         value={durationMinutes}
                         onChange={(e) => setDurationMinutes(e.target.value)}
                         className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-pink-500 focus:outline-none"
@@ -504,17 +525,32 @@ export const ServicesList = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Price (LKR)</label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Price (LKR)</label>
+                        <span className="text-[11px] font-medium text-slate-400">Optional</span>
+                      </div>
                       <input
                         type="number"
-                        required
                         min="0"
+                        placeholder="e.g. 1500 (Leave empty if variable)"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
                         className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-pink-500 focus:outline-none"
                       />
                     </div>
                   </div>
+
+                  {(!durationMinutes || !price) && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 flex items-start space-x-2">
+                      <span className="text-amber-700 font-bold text-sm">ℹ️</span>
+                      <div>
+                        <span className="font-semibold">Flexible / Custom Service:</span> Leaving time or price blank will display:
+                        <p className="mt-1 font-medium italic text-amber-950">
+                          "Price and Time can be Different according to your preferences and ask from the salon"
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Image URL</label>
