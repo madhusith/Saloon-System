@@ -26,7 +26,7 @@ export const appointmentController = {
             }
 
             const totalDuration = services.reduce((sum, s) => sum + s.duration_minutes, 0);
-            const targetDayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+            const targetDayOfWeek = new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
             const staffIdNum = Number(staffId || 0);
 
@@ -49,8 +49,8 @@ export const appointmentController = {
                     return sendSuccess(res, { message: 'Stylist does not offer all selected services.', data: { slots: [] } });
                 }
 
-                const [schedule] = await staffRepository.getSchedule(staffIdNum);
-                const daySchedule = (await staffRepository.getSchedule(staffIdNum)).find((s) => s.day_of_week === targetDayOfWeek);
+                const staffSchedule = await staffRepository.getSchedule(staffIdNum);
+                const daySchedule = staffSchedule.find((s) => s.day_of_week === targetDayOfWeek);
                 const unavailability = await staffRepository.getUnavailability(staffIdNum);
                 const appointments = await appointmentRepository.getAppointmentsForStylist(staffIdNum, date);
 
@@ -139,7 +139,7 @@ export const appointmentController = {
 
             let chosenStaffId = Number(staffId || 0);
 
-            const targetDayOfWeek = new Date(appointmentDate).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+            const targetDayOfWeek = new Date(`${appointmentDate}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
             if (chosenStaffId > 0) {
                 // 1. Specific stylist validation
@@ -254,7 +254,7 @@ export const appointmentController = {
                     if (customer) {
                         let staffMember = null;
                         if (chosenStaffId > 0) {
-                            staffMember = await staffRepository.findById(chosenStaffId);
+                            staffMember = await staffRepository.findStaffProfile(chosenStaffId);
                         }
                         await emailService.sendAppointmentBookedEmail(customer, newAppt, services, staffMember);
                     }

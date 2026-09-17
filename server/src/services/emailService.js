@@ -39,6 +39,8 @@ const sendMailInternal = async ({ to, subject, html, text }) => {
   }
 };
 
+const getUserName = (user) => user?.fullName || user?.full_name || 'there';
+
 export const emailService = {
   /**
    * Send verification email to a new user
@@ -49,12 +51,13 @@ export const emailService = {
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const verifyUrl = `${clientUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(user.email)}`;
 
+    const name = getUserName(user);
     const subject = 'Verify Your Email Address';
-    const text = `Hi ${user.fullName || 'there'},\n\nWelcome to the Salon! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`;
+    const text = `Hi ${name},\n\nWelcome to the Salon! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
         <h2 style="color: #be185d;">Verify Your Email Address</h2>
-        <p>Hi ${user.fullName || 'there'},</p>
+        <p>Hi ${name},</p>
         <p>Welcome to the Salon! Please verify your email address to activate your account:</p>
         <a href="${verifyUrl}" style="display: inline-block; background-color: #be185d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 15px 0;">Verify Email</a>
         <p>Or copy and paste this link in your browser:</p>
@@ -97,12 +100,13 @@ export const emailService = {
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const resetUrl = `${clientUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
 
+    const name = getUserName(user);
     const subject = 'Reset Your Password';
-    const text = `Hi ${user.fullName},\n\nYou requested a password reset. Please click the link below to set a new password:\n${resetUrl}\n\nThis link will expire in 1 hour. If you did not request this, please ignore this email.`;
+    const text = `Hi ${name},\n\nYou requested a password reset. Please click the link below to set a new password:\n${resetUrl}\n\nThis link will expire in 1 hour. If you did not request this, please ignore this email.`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
         <h2 style="color: #be185d;">Reset Your Password</h2>
-        <p>Hi ${user.fullName},</p>
+        <p>Hi ${name},</p>
         <p>You requested a password reset. Click the button below to set a new password:</p>
         <a href="${resetUrl}" style="display: inline-block; background-color: #be185d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 15px 0;">Reset Password</a>
         <p>Or copy and paste this link in your browser:</p>
@@ -140,12 +144,13 @@ export const emailService = {
    * @param {Object} user 
    */
   async sendPasswordChangedEmail(user) {
+    const name = getUserName(user);
     const subject = 'Your Password Was Changed';
-    const text = `Hi ${user.fullName},\n\nThis email confirms that the password for your account has been successfully changed.\n\nIf you did not make this change, please contact salon administration immediately.`;
+    const text = `Hi ${name},\n\nThis email confirms that the password for your account has been successfully changed.\n\nIf you did not make this change, please contact salon administration immediately.`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
         <h2 style="color: #be185d;">Your Password Was Changed</h2>
-        <p>Hi ${user.fullName},</p>
+        <p>Hi ${name},</p>
         <p>This email confirms that the password for your account has been successfully changed.</p>
         <p style="color: #e11d48; font-weight: bold;">If you did not perform this change, please contact salon administration immediately.</p>
       </div>
@@ -180,12 +185,13 @@ export const emailService = {
    * @param {String} tempPassword 
    */
   async sendWelcomeEmail(user, tempPassword = null) {
+    const name = getUserName(user);
     const subject = 'Welcome to the Salon Management System';
-    let text = `Hi ${user.fullName},\n\nAn account has been created for you with the role: ${user.role}.\n`;
+    let text = `Hi ${name},\n\nAn account has been created for you with the role: ${user.role}.\n`;
     let html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
         <h2 style="color: #be185d;">Welcome to the Salon!</h2>
-        <p>Hi ${user.fullName},</p>
+        <p>Hi ${name},</p>
         <p>An account has been created for you with the role: <strong>${user.role}</strong>.</p>
     `;
 
@@ -231,8 +237,9 @@ export const emailService = {
    * Send order confirmation email
    */
   async sendOrderPlacedEmail(user, order) {
+    const name = getUserName(user);
     const subject = `Order Confirmed: ${order.order_reference}`;
-    const text = `Hi ${user.fullName || 'there'},\n\nYour order has been placed and paid successfully.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}\nTotal Amount: LKR ${order.total_amount}\n\nWe will notify you when it's ready for pickup.`;
+    const text = `Hi ${name},\n\nYour order has been placed and paid successfully.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}\nTotal Amount: LKR ${order.total_amount}\n\nWe will notify you when it's ready for pickup.`;
     const itemsHtml = order.items.map(item => `
       <tr>
         <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.product_name_snapshot}</td>
@@ -245,7 +252,7 @@ export const emailService = {
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Placement Confirmed</h2>
-        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>Thank you for shopping at Beauty Lane. Here is a summary of your online product order:</p>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
@@ -300,12 +307,13 @@ export const emailService = {
    * Send order ready email
    */
   async sendOrderReadyEmail(user, order) {
+    const name = getUserName(user);
     const subject = `Your Order is Ready for Pickup: ${order.order_reference}`;
-    const text = `Hi ${user.fullName},\n\nGreat news! Your product order is ready for pickup at Beauty Lane.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}`;
+    const text = `Hi ${name},\n\nGreat news! Your product order is ready for pickup at Beauty Lane.\nOrder Reference: ${order.order_reference}\nPickup Date: ${new Date(order.pickup_date).toLocaleDateString()}`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Ready for Pickup</h2>
-        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>Great news! Your online product order has been packaged and is now ready for pickup at Beauty Lane.</p>
         
         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
@@ -345,12 +353,13 @@ export const emailService = {
    * Send order completed email
    */
   async sendOrderCompletedEmail(user, order) {
+    const name = getUserName(user);
     const subject = `Order Completed: ${order.order_reference}`;
-    const text = `Hi ${user.fullName},\n\nThank you! Your order has been successfully picked up.\nOrder Reference: ${order.order_reference}`;
+    const text = `Hi ${name},\n\nThank you! Your order has been successfully picked up.\nOrder Reference: ${order.order_reference}`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Handed Over</h2>
-        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>This email confirms that you have successfully picked up your product order. Thank you for shopping with us!</p>
         <p><strong>Order Ref:</strong> ${order.order_reference}</p>
       </div>
@@ -383,12 +392,13 @@ export const emailService = {
    * Send order cancelled email
    */
   async sendOrderCancelledEmail(user, order) {
+    const name = getUserName(user);
     const subject = `Order Cancelled: ${order.order_reference}`;
-    const text = `Hi ${user.fullName},\n\nYour order has been cancelled and a full refund has been credited.\nOrder Reference: ${order.order_reference}`;
+    const text = `Hi ${name},\n\nYour order has been cancelled and a full refund has been credited.\nOrder Reference: ${order.order_reference}`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Order Cancellation & Refund</h2>
-        <p>Hi <strong>${user.fullName}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>Your product order has been successfully cancelled. A full refund of <strong>LKR ${Number(order.total_amount).toFixed(2)}</strong> has been credited back to your account.</p>
         <p><strong>Order Ref:</strong> ${order.order_reference}</p>
       </div>
@@ -421,16 +431,17 @@ export const emailService = {
    * Send appointment booked confirmation email
    */
   async sendAppointmentBookedEmail(user, appointment, services, staff) {
+    const name = getUserName(user);
     const subject = `Appointment Confirmed: ${appointment.booking_reference}`;
     const servicesText = services.map(s => s.name).join(', ');
     const servicesHtml = services.map(s => `<li>${s.name} (LKR ${Number(s.price).toFixed(2)})</li>`).join('');
-    const staffName = staff ? (staff.full_name || staff.name) : 'Any Available Stylist';
+    const staffName = staff ? (staff.full_name || staff.name || staff.fullName) : 'Any Available Stylist';
     
-    const text = `Hi ${user.fullName || 'there'},\n\nYour appointment is confirmed!\nBooking Reference: ${appointment.booking_reference}\nDate: ${appointment.appointment_date}\nTime: ${appointment.start_time.slice(0, 5)}\nStylist: ${staffName}\nServices: ${servicesText}\nTotal: LKR ${Number(appointment.total_price).toFixed(2)}\n\nThank you for choosing us!`;
+    const text = `Hi ${name},\n\nYour appointment is confirmed!\nBooking Reference: ${appointment.booking_reference}\nDate: ${appointment.appointment_date}\nTime: ${appointment.start_time.slice(0, 5)}\nStylist: ${staffName}\nServices: ${servicesText}\nTotal: LKR ${Number(appointment.total_price).toFixed(2)}\n\nThank you for choosing us!`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Appointment Confirmed</h2>
-        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>Your appointment has been successfully scheduled. Here are the details:</p>
         
         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
@@ -476,12 +487,13 @@ export const emailService = {
    * Send appointment cancelled notification email
    */
   async sendAppointmentCancelledEmail(user, appointment, reason) {
+    const name = getUserName(user);
     const subject = `Appointment Cancelled: ${appointment.booking_reference}`;
-    const text = `Hi ${user.fullName || 'there'},\n\nThis email confirms that your appointment (${appointment.booking_reference}) scheduled for ${appointment.appointment_date} at ${appointment.start_time.slice(0, 5)} has been cancelled.\n\nReason: ${reason || 'Not provided'}\n\nIf you have any questions, please contact us.`;
+    const text = `Hi ${name},\n\nThis email confirms that your appointment (${appointment.booking_reference}) scheduled for ${appointment.appointment_date} at ${appointment.start_time.slice(0, 5)} has been cancelled.\n\nReason: ${reason || 'Not provided'}\n\nIf you have any questions, please contact us.`;
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d; text-align: center;">Appointment Cancelled</h2>
-        <p>Hi <strong>${user.fullName || 'there'}</strong>,</p>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>This email confirms that your appointment has been cancelled.</p>
         
         <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
