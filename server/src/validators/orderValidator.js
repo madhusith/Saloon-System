@@ -4,20 +4,12 @@ export const createOrderSchema = Joi.object({
   body: Joi.object({
     pickupDate: Joi.date().required(),
     customerNote: Joi.string().trim().max(500).allow('', null).default(null),
-    paymentMethod: Joi.string().valid('ONLINE').required(),
+    paymentMethod: Joi.string().valid('ONLINE', 'PAY_AT_SALON').default('PAY_AT_SALON'),
     cardDetails: Joi.object({
-      cardNumber: Joi.string().creditCard().required(),
-      expiryDate: Joi.string().pattern(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/).required().messages({
-        'string.pattern.base': 'Expiry date must be in MM/YY format.'
-      }),
-      cvv: Joi.string().length(3).pattern(/^[0-9]+$/).required().messages({
-        'string.pattern.base': 'CVV must be 3 digits.'
-      })
-    }).when('paymentMethod', {
-      is: 'ONLINE',
-      then: Joi.required(),
-      otherwise: Joi.optional()
-    }),
+      cardNumber: Joi.string().optional(),
+      expiryDate: Joi.string().optional(),
+      cvv: Joi.string().optional()
+    }).optional(),
     items: Joi.array().items(
       Joi.object({
         productId: Joi.number().integer().positive().required(),

@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS services (
   name VARCHAR(255) NOT NULL UNIQUE,
   description TEXT,
   category ENUM('HAIR', 'FACE', 'BODY', 'NAILS', 'BRIDAL', 'OTHER') NOT NULL,
-  duration_minutes INT NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
+  duration_minutes INT NULL,
+  price DECIMAL(10,2) NULL,
   image_url VARCHAR(255) NULL,
   status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -68,10 +68,10 @@ INSERT IGNORE INTO staff_services (staff_id, service_id) VALUES
 
 -- Seed default weekly working hours for Alex Stylist (user_id = 3)
 INSERT IGNORE INTO staff_schedules (staff_id, day_of_week, is_working, start_time, end_time) VALUES
-(3, 'MONDAY', 1, '09:00:00', '18:00:00'),
-(3, 'TUESDAY', 1, '09:00:00', '18:00:00'),
-(3, 'WEDNESDAY', 1, '09:00:00', '18:00:00'),
-(3, 'THURSDAY', 1, '09:00:00', '18:00:00'),
-(3, 'FRIDAY', 1, '09:00:00', '18:00:00'),
-(3, 'SATURDAY', 1, '09:00:00', '18:00:00'),
+(3, 'MONDAY', 1, '09:00:00', '19:00:00'),
+(3, 'TUESDAY', 1, '09:00:00', '19:00:00'),
+(3, 'WEDNESDAY', 1, '09:00:00', '19:00:00'),
+(3, 'THURSDAY', 1, '09:00:00', '19:00:00'),
+(3, 'FRIDAY', 1, '09:00:00', '19:00:00'),
+(3, 'SATURDAY', 1, '09:00:00', '19:00:00'),
 (3, 'SUNDAY', 0, NULL, NULL);

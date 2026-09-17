@@ -5,7 +5,7 @@ import { initSocket } from './sockets/socket.js';
 
 import { pool } from './config/database.js';
 
-// Initialize and validate configurations
+// Initialize and validate configurations (including SMTP email service)
 validateEnv();
 
 const server = http.createServer(app);
@@ -29,6 +29,20 @@ const ensureDatabaseColumns = async () => {
     if (err.code !== 'ER_DUP_FIELDNAME') {
       console.error('Error adding cashier_name column:', err);
     }
+  }
+  try {
+    await pool.execute('ALTER TABLE payments ADD COLUMN order_id INT NULL');
+    console.log('Database check: Added order_id to payments');
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') {
+      // Ignore if column already exists or table does not exist
+    }
+  }
+  try {
+    await pool.execute('ALTER TABLE services MODIFY COLUMN price DECIMAL(10,2) NULL');
+    await pool.execute('ALTER TABLE services MODIFY COLUMN duration_minutes INT NULL');
+  } catch (err) {
+    // Ignore if table does not exist yet or already nullable
   }
 };
 

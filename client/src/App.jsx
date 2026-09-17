@@ -283,6 +283,7 @@ function App() {
           <Route index element={<CashierDashboard />} />
           <Route path="queue" element={<QueueBoard />} />
           <Route path="pos" element={<POS />} />
+          <Route path="orders" element={<OrderManagement />} />
           <Route path="sales" element={<SalesHistory />} />
         </Route>
 

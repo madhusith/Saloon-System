@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/authContext.jsx';
 import api from '../../services/api.js';
@@ -28,6 +28,7 @@ export const CustomerDashboard = () => {
       }
     } catch (err) {
       console.warn('Failed to load active user lists:', err);
+      setError('Failed to load recent dashboard activity.');
     } finally {
       setLoading(false);
     }
@@ -37,11 +38,16 @@ export const CustomerDashboard = () => {
     fetchCustomerData();
   }, []);
 
-  const upcomingAppts = appointments.filter(a => a.status === 'SCHEDULED' || a.status === 'WAITING');
+  const upcomingAppts = appointments.filter(a => ['CONFIRMED', 'WAITING', 'IN_PROGRESS', 'PENDING'].includes(a.status));
   const activeOrders = orders.filter(o => o.order_status !== 'COMPLETED' && o.order_status !== 'CANCELLED');
 
   return (
     <div className="space-y-10 animate-fade-in-up">
+      {error && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 font-medium">
+          {error}
+        </div>
+      )}
       {/* High-Contrast Premium Hero Panel */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#05020c] via-[#4c0d38] to-[#f472b6] animate-gradient text-white p-10 md:p-12 shadow-xl shadow-pink-950/20 border border-white/5">
         <div className="absolute -top-12 -right-12 h-60 w-60 rounded-full bg-white/5 blur-3xl"></div>

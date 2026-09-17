@@ -34,8 +34,15 @@ export const OrderManagement = () => {
   }, [statusFilter]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
+    const targetOrder = orders.find(o => o.id === orderId);
+    const isUnpaid = targetOrder && targetOrder.payment_status !== 'PAID';
+
     const confirmMsg = newStatus === 'CANCELLED' 
-      ? 'Are you sure you want to cancel this order? Stock will be restored and payment refunded.'
+      ? 'Are you sure you want to cancel this order? Stock will be restored to inventory.'
+      : newStatus === 'COMPLETED'
+      ? isUnpaid
+        ? `Handover products and confirm collection of LKR ${Number(targetOrder.total_amount).toFixed(2)} at the salon counter?`
+        : 'Confirm handover of products to customer and mark order as completed?'
       : `Advance order status to ${newStatus}?`;
 
     if (!window.confirm(confirmMsg)) return;
@@ -43,7 +50,11 @@ export const OrderManagement = () => {
     try {
       setActionLoading(true);
       setError('');
-      const res = await api.patch(`/orders/${orderId}/status`, { orderStatus: newStatus });
+      const payload = { 
+        orderStatus: newStatus,
+        paymentStatus: newStatus === 'COMPLETED' ? 'PAID' : undefined
+      };
+      const res = await api.patch(`/orders/${orderId}/status`, payload);
       if (res.data && res.data.success) {
         // Refresh orders and selected order if details panel is open
         await fetchOrders();
@@ -78,8 +89,8 @@ export const OrderManagement = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Online Order Management</h1>
-        <p className="mt-1 text-sm text-slate-500 font-medium">Verify, pack, and mark product online orders as ready for pick-up.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Product Orders & Pickups</h1>
+        <p className="mt-1 text-sm text-slate-500 font-medium">Verify, pack, collect payment, and handover customer product pickup orders.</p>
       </div>
 
       {error && (
@@ -98,7 +109,8 @@ export const OrderManagement = () => {
             className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs focus:border-pink-500 focus:outline-none"
           >
             <option value="">All Orders</option>
-            <option value="PAID">Paid (New)</option>
+            <option value="PENDING">Pending (Pay at Salon)</option>
+            <option value="PAID">Paid Online</option>
             <option value="PROCESSING">Processing</option>
             <option value="READY">Ready for Pickup</option>
             <option value="COMPLETED">Completed</option>
@@ -130,6 +142,7 @@ export const OrderManagement = () => {
                       <th className="px-6 py-3">Customer</th>
                       <th className="px-6 py-3">Pickup</th>
                       <th className="px-6 py-3 text-right">Total</th>
+                      <th className="px-6 py-3 text-center">Payment</th>
                       <th className="px-6 py-3 text-center">Status</th>
                       <th className="px-6 py-3 text-center">Actions</th>
                     </tr>
@@ -137,7 +150,7 @@ export const OrderManagement = () => {
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="px-6 py-12 text-center text-slate-400 font-medium">
+                        <td colSpan="7" className="px-6 py-12 text-center text-slate-400 font-medium">
                           No product orders in queue.
                         </td>
                       </tr>
@@ -163,22 +176,31 @@ export const OrderManagement = () => {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                              order.payment_status === 'PAID'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-amber-100 text-amber-900 border border-amber-300'
+                            }`}>
+                              {order.payment_status === 'PAID' ? 'PAID' : 'PAY AT SALON'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
                               order.order_status === 'COMPLETED' ? 'bg-slate-100 text-slate-800' :
                               order.order_status === 'READY' ? 'bg-purple-100 text-purple-800' :
                               order.order_status === 'PROCESSING' ? 'bg-blue-100 text-blue-800' :
-                              order.order_status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
+                              order.order_status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
                             }`}>
                               {order.order_status}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center space-x-1" onClick={(e) => e.stopPropagation()}>
-                            {order.order_status === 'PAID' && (
+                            {(order.order_status === 'PAID' || order.order_status === 'PENDING') && (
                               <button
                                 onClick={() => handleUpdateStatus(order.id, 'PROCESSING')}
                                 disabled={actionLoading}
                                 className="rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 text-xs font-bold text-blue-700 transition"
                               >
-                                Process
+                                Pack / Process
                               </button>
                             )}
                             {order.order_status === 'PROCESSING' && (
@@ -187,23 +209,23 @@ export const OrderManagement = () => {
                                 disabled={actionLoading}
                                 className="rounded bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2.5 py-1 text-xs font-bold text-purple-700 transition"
                               >
-                                Ready
+                                Mark Ready
                               </button>
                             )}
                             {order.order_status === 'READY' && (
                               <button
                                 onClick={() => handleUpdateStatus(order.id, 'COMPLETED')}
                                 disabled={actionLoading}
-                                className="rounded bg-slate-100 hover:bg-slate-200 border border-slate-300 px-2.5 py-1 text-xs font-bold text-slate-700 transition"
+                                className="rounded bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 text-xs font-bold transition shadow-sm"
                               >
-                                Handover
+                                {order.payment_status === 'PAID' ? 'Handover' : 'Handover & Collect'}
                               </button>
                             )}
                             {order.order_status !== 'COMPLETED' && order.order_status !== 'CANCELLED' && (
                               <button
                                 onClick={() => handleUpdateStatus(order.id, 'CANCELLED')}
                                 disabled={actionLoading}
-                                className="rounded border border-red-200 bg-white hover:bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition"
+                                className="rounded border border-red-200 bg-white hover:bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 transition"
                               >
                                 Cancel
                               </button>

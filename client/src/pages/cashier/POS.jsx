@@ -56,17 +56,21 @@ export const POS = () => {
 
         // Prefill cart if appointment is passed
         if (prefilledAppointment) {
-          const serviceRows = prefilledAppointment.services.map(s => ({
-            id: `service-${s.id}-${Date.now()}`,
-            itemType: 'SERVICE',
-            serviceId: s.id,
-            productId: null,
-            itemNameSnapshot: s.name,
-            quantity: 1,
-            unitPrice: Number(s.price),
-            subtotal: Number(s.price),
-            staffId: prefilledAppointment.staff_id || ''
-          }));
+          const serviceRows = prefilledAppointment.services.map(s => {
+            const hasFixedPrice = s.price !== null && s.price !== undefined && Number(s.price) > 0;
+            const priceVal = hasFixedPrice ? Number(s.price) : '';
+            return {
+              id: `service-${s.id}-${Date.now()}`,
+              itemType: 'SERVICE',
+              serviceId: s.id,
+              productId: null,
+              itemNameSnapshot: s.name,
+              quantity: 1,
+              unitPrice: priceVal,
+              subtotal: hasFixedPrice ? Number(s.price) : 0,
+              staffId: prefilledAppointment.staff_id || ''
+            };
+          });
           setCartItems(serviceRows);
         }
       } catch (err) {
@@ -81,6 +85,9 @@ export const POS = () => {
     const s = servicesCatalog.find(item => item.id === Number(serviceId));
     if (!s) return;
 
+    const hasFixedPrice = s.price !== null && s.price !== undefined && Number(s.price) > 0;
+    const priceVal = hasFixedPrice ? Number(s.price) : '';
+
     setCartItems([
       ...cartItems,
       {
@@ -90,8 +97,8 @@ export const POS = () => {
         productId: null,
         itemNameSnapshot: s.name,
         quantity: 1,
-        unitPrice: Number(s.price),
-        subtotal: Number(s.price),
+        unitPrice: priceVal,
+        subtotal: hasFixedPrice ? Number(s.price) : 0,
         staffId: prefilledAppointment?.staff_id || ''
       }
     ]);
@@ -142,6 +149,23 @@ export const POS = () => {
     );
   };
 
+  const updateItemPrice = (id, newPrice) => {
+    setCartItems(
+      cartItems.map(item => {
+        if (item.id === id) {
+          const val = newPrice === '' ? '' : Math.max(0, Number(newPrice));
+          const numPrice = val === '' ? 0 : val;
+          return {
+            ...item,
+            unitPrice: val,
+            subtotal: Number(item.quantity || 1) * numPrice
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   const updateServiceStylist = (id, staffId) => {
     setCartItems(
       cartItems.map(item => {
@@ -158,7 +182,7 @@ export const POS = () => {
   };
 
   // Subtotal calculation
-  const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0);
 
   // Sync discount percent and LKR amount
   const handleDiscountPercentChange = (val) => {
@@ -190,6 +214,15 @@ export const POS = () => {
       return;
     }
 
+    // Verify all items have a valid entered price
+    const missingPriceItem = cartItems.find(
+      item => item.unitPrice === '' || item.unitPrice === null || isNaN(Number(item.unitPrice)) || Number(item.unitPrice) <= 0
+    );
+    if (missingPriceItem) {
+      setError(`Please enter a valid price for "${missingPriceItem.itemNameSnapshot}" in the billing cart.`);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -208,8 +241,8 @@ export const POS = () => {
           serviceId: item.serviceId,
           itemNameSnapshot: item.itemNameSnapshot,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          subtotal: item.subtotal
+          unitPrice: Number(item.unitPrice),
+          subtotal: Number(item.subtotal)
         })),
         adminOverrideEmail: exceedsCashierLimit ? adminEmail : null,
         adminOverridePassword: exceedsCashierLimit ? adminPassword : null
@@ -320,11 +353,39 @@ export const POS = () => {
                             <span className="font-medium text-slate-800">{item.quantity}</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-right font-medium text-slate-800">
-                          LKR {Number(item.unitPrice).toFixed(2)}
+                        <td className="px-6 py-4 text-right">
+                          {item.itemType === 'SERVICE' ? (
+                            <div className="flex flex-col items-end">
+                              <div className="flex items-center space-x-1.5">
+                                <span className="text-xs font-semibold text-slate-400">LKR</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="any"
+                                  placeholder="0.00"
+                                  value={item.unitPrice === '' ? '' : item.unitPrice}
+                                  onChange={(e) => updateItemPrice(item.id, e.target.value)}
+                                  className={`w-28 rounded-lg border px-2.5 py-1 text-right text-sm font-bold focus:outline-none transition ${
+                                    item.unitPrice === '' || Number(item.unitPrice) <= 0
+                                      ? 'border-amber-400 bg-amber-50 text-amber-900 ring-2 ring-amber-300/60 focus:border-pink-500'
+                                      : 'border-slate-300 text-slate-900 bg-white focus:border-pink-500'
+                                  }`}
+                                />
+                              </div>
+                              {(item.unitPrice === '' || Number(item.unitPrice) <= 0) && (
+                                <span className="mt-1 text-[11px] font-bold text-amber-700">
+                                  * Enter agreed price
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="font-medium text-slate-800">
+                              LKR {Number(item.unitPrice).toFixed(2)}
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-right font-bold text-slate-900">
-                          LKR {Number(item.subtotal).toFixed(2)}
+                          LKR {Number(item.subtotal || 0).toFixed(2)}
                         </td>
                         <td className="px-6 py-4 text-center">
                           <button
@@ -361,9 +422,13 @@ export const POS = () => {
                   >
                     <div>
                       <h4 className="text-xs font-bold text-slate-900">{service.name}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{service.duration_minutes} mins</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {service.duration_minutes ? `${service.duration_minutes} mins` : 'Flexible duration'}
+                      </p>
                     </div>
-                    <span className="text-xs font-bold text-slate-800">LKR {Number(service.price).toFixed(2)}</span>
+                    <span className="text-xs font-bold text-slate-800">
+                      {service.price !== null && service.price !== undefined ? `LKR ${Number(service.price).toFixed(2)}` : 'Varies (Ask)'}
+                    </span>
                   </button>
                 ))}
               </div>

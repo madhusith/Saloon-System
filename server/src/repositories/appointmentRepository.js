@@ -153,7 +153,7 @@ export const appointmentRepository = {
     async updateStatus(id, status, cancellationReason = null) {
         if (status === 'CANCELLED') {
             await pool.execute(
-                'UPDATE appointments SET status = ?, cancellation_reason = ?, deleted_at = NOW() WHERE id = ?',
+                'UPDATE appointments SET status = ?, cancellation_reason = ? WHERE id = ?',
                 [status, cancellationReason, id]
             );
         } else {

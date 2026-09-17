@@ -4,9 +4,9 @@ export const checkoutSchema = Joi.object({
   body: Joi.object({
     appointmentId: Joi.number().integer().positive().allow(null, 0).default(null),
     customerId: Joi.number().integer().positive().allow(null, 0).default(null),
-    subtotal: Joi.number().positive().required(),
+    subtotal: Joi.number().min(0).required(),
     discountAmount: Joi.number().min(0).default(0),
-    totalAmount: Joi.number().positive().required(),
+    totalAmount: Joi.number().min(0).required(),
     paymentMethod: Joi.string().valid('CASH', 'CARD', 'ONLINE').required(),
     transactionReference: Joi.string().trim().allow('', null).default(null),
     
@@ -25,8 +25,8 @@ export const checkoutSchema = Joi.object({
         }),
         itemNameSnapshot: Joi.string().trim().min(1).required(),
         quantity: Joi.number().integer().positive().required(),
-        unitPrice: Joi.number().positive().required(),
-        subtotal: Joi.number().positive().required()
+        unitPrice: Joi.number().min(0).required(),
+        subtotal: Joi.number().min(0).required()
       })
     ).min(1).required(),
 

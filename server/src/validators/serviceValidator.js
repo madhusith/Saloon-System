@@ -5,8 +5,8 @@ export const createServiceSchema = Joi.object({
     name: Joi.string().trim().max(255).required(),
     description: Joi.string().trim().allow('', null).default(null),
     category: Joi.string().valid('HAIR', 'FACE', 'BODY', 'NAILS', 'BRIDAL', 'OTHER').required(),
-    durationMinutes: Joi.number().integer().min(1).required(),
-    price: Joi.number().min(0).required(),
+    durationMinutes: Joi.number().integer().min(1).allow(null).optional().default(null),
+    price: Joi.number().min(0).allow(null).optional().default(null),
     imageUrl: Joi.string().trim().allow('', null).default(null),
     status: Joi.string().valid('ACTIVE', 'INACTIVE').default('ACTIVE')
   }),
@@ -19,8 +19,8 @@ export const updateServiceSchema = Joi.object({
     name: Joi.string().trim().max(255),
     description: Joi.string().trim().allow('', null),
     category: Joi.string().valid('HAIR', 'FACE', 'BODY', 'NAILS', 'BRIDAL', 'OTHER'),
-    durationMinutes: Joi.number().integer().min(1),
-    price: Joi.number().min(0),
+    durationMinutes: Joi.number().integer().min(1).allow(null).optional(),
+    price: Joi.number().min(0).allow(null).optional(),
     imageUrl: Joi.string().trim().allow('', null),
     status: Joi.string().valid('ACTIVE', 'INACTIVE')
   }).min(1),

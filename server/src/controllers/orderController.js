@@ -66,17 +66,23 @@ export const orderController = {
       const orderReference = `ORD-${datePrefix}-${hexRandom}`;
       const totalAmount = subtotal; // No discount in online orders currently
 
+      const isOnlinePaid = paymentMethod === 'ONLINE';
+      const initialPaymentStatus = isOnlinePaid ? 'PAID' : 'PENDING';
+      const initialOrderStatus = isOnlinePaid ? 'PAID' : 'PENDING';
+
       // 2. Insert order record
       const [orderResult] = await connection.execute(
         `INSERT INTO orders (
           order_reference, customer_id, subtotal, discount_amount, total_amount, 
           payment_status, order_status, pickup_date, customer_note
-        ) VALUES (?, ?, ?, 0.00, ?, 'PAID', 'PAID', ?, ?)`,
+        ) VALUES (?, ?, ?, 0.00, ?, ?, ?, ?, ?)`,
         [
           orderReference,
           customerId,
           subtotal,
           totalAmount,
+          initialPaymentStatus,
+          initialOrderStatus,
           pickupDate,
           customerNote || null
         ]
@@ -123,15 +129,17 @@ export const orderController = {
         }, connection);
       }
 
-      // 4. Create mock payment record
-      const transactionReference = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      await connection.execute(
-        `INSERT INTO payments (
-          customer_id, order_id, payment_method, amount, currency, 
-          transaction_reference, gateway_name, payment_status, recorded_by, cashier_name, paid_at
-        ) VALUES (?, ?, 'ONLINE', ?, 'LKR', ?, 'MOCK_GATEWAY', 'PAID', ?, 'Online Order', NOW())`,
-        [customerId, orderId, totalAmount, transactionReference, customerId]
-      );
+      // 4. Create payment record if paid online
+      if (isOnlinePaid) {
+        const transactionReference = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+        await connection.execute(
+          `INSERT INTO payments (
+            customer_id, order_id, payment_method, amount, currency, 
+            transaction_reference, gateway_name, payment_status, recorded_by, cashier_name, paid_at
+          ) VALUES (?, ?, 'ONLINE', ?, 'LKR', ?, 'MOCK_GATEWAY', 'PAID', ?, 'Online Order', NOW())`,
+          [customerId, orderId, totalAmount, transactionReference, customerId]
+        );
+      }
 
       await connection.commit();
 
@@ -334,10 +342,29 @@ export const orderController = {
           [id]
         );
       } else {
+        const resolvedPaymentStatus = paymentStatus || (orderStatus === 'COMPLETED' ? 'PAID' : order.payment_status);
         await orderRepository.updateStatus(id, {
           orderStatus,
-          paymentStatus
+          paymentStatus: resolvedPaymentStatus
         }, connection);
+
+        // If order completed and paid, record counter payment if none exists
+        if (orderStatus === 'COMPLETED' && resolvedPaymentStatus === 'PAID') {
+          const [existingPayments] = await connection.execute(
+            'SELECT id FROM payments WHERE order_id = ?',
+            [id]
+          );
+          if (existingPayments.length === 0) {
+            const transactionReference = `POS-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            await connection.execute(
+              `INSERT INTO payments (
+                customer_id, order_id, payment_method, amount, currency, 
+                transaction_reference, gateway_name, payment_status, recorded_by, cashier_name, paid_at
+              ) VALUES (?, ?, 'CASH', ?, 'LKR', ?, 'CASHIER_COUNTER', 'PAID', ?, 'Front Desk Cashier', NOW())`,
+              [order.customer_id, id, order.total_amount, transactionReference, adminId]
+            );
+          }
+        }
       }
 
       await connection.commit();

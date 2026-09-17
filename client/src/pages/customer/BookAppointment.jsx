@@ -48,31 +48,36 @@ export const BookAppointment = () => {
     }, []);
 
     // Fetch eligible stylists when services are selected
-    // We intersect the stylists assigned to all selected services
+    // If a service has assigned staff, use that list; if empty (open/flexible), any active staff can perform it
     const fetchEligibleStaff = async () => {
         if (selectedServices.length === 0) return;
         setLoading(true);
         try {
+            // Fetch all staff first
+            const staffRes = await api.get('/staff');
+            const allActiveStaff = (staffRes.data?.data?.staff || []).filter((m) => m.status === 'ACTIVE');
+            const allActiveStaffIds = allActiveStaff.map((m) => m.id);
+
             // Fetch details of all selected services to get their assigned staff IDs
             const serviceDetails = await Promise.all(
                 selectedServices.map((id) => api.get(`/services/${id}`))
             );
 
-            const staffAssignments = serviceDetails.map((res) => res.data.data.assignedStaffIds || []);
+            // If a service has no assigned staff, treat it as open to all active stylists
+            const staffAssignments = serviceDetails.map((res) => {
+                const assigned = res.data?.data?.assignedStaffIds || [];
+                return assigned.length > 0 ? assigned : allActiveStaffIds;
+            });
 
             // Intersect assignments
             const eligibleIds = staffAssignments.reduce((intersection, currentList) => {
                 return intersection.filter((id) => currentList.includes(id));
-            }, staffAssignments[0] || []);
+            }, allActiveStaffIds);
 
-            // Fetch all staff and filter by intersection
-            const staffRes = await api.get('/staff');
-            if (staffRes.data && staffRes.data.success) {
-                const matchingStaff = staffRes.data.data.staff.filter((member) =>
-                    eligibleIds.includes(member.id) && member.status === 'ACTIVE'
-                );
-                setStaff(matchingStaff);
-            }
+            const matchingStaff = allActiveStaff.filter((member) =>
+                eligibleIds.includes(member.id)
+            );
+            setStaff(matchingStaff);
         } catch (err) {
             console.error('Failed to resolve eligible staff:', err);
         } finally {
@@ -119,16 +124,21 @@ export const BookAppointment = () => {
         fetchSlots();
     }, [bookingDate, selectedStaffId]);
 
-    // Summaries
+    // Summaries - Default to 30 mins if duration is not specified
     const totalDuration = selectedServices.reduce((sum, id) => {
         const service = services.find((s) => s.id === id);
-        return sum + (service?.duration_minutes || 0);
+        return sum + (Number(service?.duration_minutes) || 30);
     }, 0);
 
     const totalPrice = selectedServices.reduce((sum, id) => {
         const service = services.find((s) => s.id === id);
         return sum + Number(service?.price || 0);
     }, 0);
+
+    const hasVariableServices = selectedServices.some((id) => {
+        const service = services.find((s) => s.id === id);
+        return service && (service.price === null || service.price === undefined || !service.duration_minutes);
+    });
 
     const toggleService = (id) => {
         setErrorMsg('');
@@ -216,28 +226,49 @@ export const BookAppointment = () => {
                                 </div>
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    {services.map((service) => (
-                                        <label
-                                            key={service.id}
-                                            className={`flex items-start justify-between p-4 border rounded-xl cursor-pointer hover:border-pink-300 transition-all ${selectedServices.includes(service.id) ? 'border-pink-700 bg-pink-50/20' : 'border-slate-200 bg-white'
-                                                }`}
-                                        >
-                                            <div className="space-y-1 pr-3">
-                                                <span className="block text-sm font-semibold text-slate-950">{service.name}</span>
-                                                <span className="block text-xs text-slate-500 line-clamp-1">{service.description || 'Pamper session.'}</span>
-                                                <span className="inline-block text-xxs font-bold text-slate-400 bg-slate-100 rounded px-1.5 py-0.5 uppercase">{service.category}</span>
-                                            </div>
-                                            <div className="flex flex-col items-end space-y-2">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedServices.includes(service.id)}
-                                                    onChange={() => toggleService(service.id)}
-                                                    className="h-4.5 w-4.5 rounded border-slate-300 text-pink-600 focus:ring-pink-500"
-                                                />
-                                                <span className="text-xs font-bold text-pink-700">LKR {Number(service.price).toLocaleString()}</span>
-                                            </div>
-                                        </label>
-                                    ))}
+                                    {services.map((service) => {
+                                        const isVariable = service.price === null || service.price === undefined || !service.duration_minutes;
+                                        return (
+                                            <label
+                                                key={service.id}
+                                                className={`flex items-start justify-between p-4 border rounded-xl cursor-pointer hover:border-pink-300 transition-all ${selectedServices.includes(service.id) ? 'border-pink-700 bg-pink-50/20' : 'border-slate-200 bg-white'
+                                                    }`}
+                                            >
+                                                <div className="space-y-1.5 pr-3 flex-1">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="text-sm font-semibold text-slate-950">{service.name}</span>
+                                                        <span className="inline-block text-xxs font-bold text-slate-400 bg-slate-100 rounded px-1.5 py-0.5 uppercase">{service.category}</span>
+                                                        {service.duration_minutes ? (
+                                                            <span className="text-xxs text-slate-500 font-semibold bg-slate-100/70 rounded px-1.5 py-0.5">⏱️ {service.duration_minutes} mins</span>
+                                                        ) : (
+                                                            <span className="text-xxs text-amber-800 font-semibold bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">⏱️ 30 mins (Default Slot)</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="block text-xs text-slate-500 line-clamp-2">{service.description || 'Pamper session.'}</span>
+                                                    {isVariable && (
+                                                        <div className="rounded-lg bg-amber-50/90 border border-amber-200/80 p-2 text-xs text-amber-900 leading-snug">
+                                                            📢 <em>Price and Time can be Different according to your preferences and ask from the salon</em>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col items-end space-y-2 ml-2 shrink-0">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedServices.includes(service.id)}
+                                                        onChange={() => toggleService(service.id)}
+                                                        className="h-4.5 w-4.5 rounded border-slate-300 text-pink-600 focus:ring-pink-500"
+                                                    />
+                                                    {service.price !== null && service.price !== undefined ? (
+                                                        <span className="text-xs font-bold text-pink-700">LKR {Number(service.price).toLocaleString()}</span>
+                                                    ) : (
+                                                        <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200">
+                                                            Ask Salon
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -250,22 +281,44 @@ export const BookAppointment = () => {
                             <div className="divide-y divide-slate-100 text-sm space-y-2">
                                 {selectedServices.map((sid) => {
                                     const s = services.find((srv) => srv.id === sid);
+                                    const sVariable = s?.price === null || s?.price === undefined || !s?.duration_minutes;
                                     return (
-                                        <div key={sid} className="flex justify-between py-2 text-slate-800 font-medium">
-                                            <span>{s?.name}</span>
-                                            <span>LKR {Number(s?.price || 0).toLocaleString()}</span>
+                                        <div key={sid} className="py-2 text-slate-800 font-medium space-y-1">
+                                            <div className="flex justify-between items-center">
+                                                <span>{s?.name}</span>
+                                                <span className={s?.price != null ? 'font-bold' : 'text-xs text-amber-800 font-bold'}>
+                                                    {s?.price !== null && s?.price !== undefined ? `LKR ${Number(s.price).toLocaleString()}` : 'Ask salon'}
+                                                </span>
+                                            </div>
+                                            {sVariable && (
+                                                <p className="text-[11px] text-amber-800 font-normal leading-tight">
+                                                    * Price and Time can be Different according to your preferences and ask from the salon
+                                                </p>
+                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {hasVariableServices && (
+                                <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900 leading-snug">
+                                    <span className="font-semibold">Note:</span> Price and Time can be Different according to your preferences and ask from the salon.
+                                </div>
+                            )}
+
                             <div className="border-t border-slate-200 pt-4 space-y-2 text-sm">
                                 <div className="flex justify-between font-medium text-slate-600">
                                     <span>Total Duration:</span>
-                                    <span>{totalDuration} mins</span>
+                                    <span>
+                                        {totalDuration} mins {hasVariableServices && '(30m default reserved)'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between font-bold text-lg text-slate-900">
                                     <span>Total Price:</span>
-                                    <span className="text-pink-700">LKR {totalPrice.toLocaleString()}</span>
+                                    <span className="text-pink-700">
+                                        {totalPrice > 0 ? `LKR ${totalPrice.toLocaleString()}` : ''}
+                                        {hasVariableServices ? (totalPrice > 0 ? ' + Inquire at salon' : 'Inquire at salon') : ''}
+                                    </span>
                                 </div>
                             </div>
                             <button
@@ -450,7 +503,10 @@ export const BookAppointment = () => {
 
                         <div className="grid grid-cols-3 py-2 border-b border-slate-50">
                             <span className="font-semibold text-slate-400 uppercase tracking-wide text-xs">Duration:</span>
-                            <span className="col-span-2 font-bold text-slate-800">{totalDuration} minutes</span>
+                            <span className="col-span-2 font-bold text-slate-800">
+                                {totalDuration > 0 ? `${totalDuration} minutes` : 'Flexible / Variable'}
+                                {hasVariableServices && totalDuration > 0 ? ' (Est. + variable service)' : ''}
+                            </span>
                         </div>
 
                         <div className="grid grid-cols-3 py-2 border-b border-slate-50">
@@ -460,8 +516,20 @@ export const BookAppointment = () => {
 
                         <div className="grid grid-cols-3 py-2 border-b border-slate-100">
                             <span className="font-semibold text-slate-400 uppercase tracking-wide text-xs">Estimated Bill:</span>
-                            <span className="col-span-2 font-extrabold text-pink-700 text-lg">LKR {totalPrice.toLocaleString()}</span>
+                            <span className="col-span-2 font-extrabold text-pink-700 text-lg">
+                                {totalPrice > 0 ? `LKR ${totalPrice.toLocaleString()}` : ''}
+                                {hasVariableServices ? (totalPrice > 0 ? ' + Inquire at Salon' : 'Inquire at Salon') : ''}
+                            </span>
                         </div>
+
+                        {hasVariableServices && (
+                            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950 flex items-start space-x-2">
+                                <span className="text-amber-700 font-bold">ℹ️</span>
+                                <div>
+                                    <span className="font-semibold">Notice:</span> Price and Time can be Different according to your preferences and ask from the salon.
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-2 pt-2">
                             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Special Requests / Notes</label>
@@ -523,10 +591,20 @@ export const BookAppointment = () => {
                             <span className="text-slate-400 font-semibold uppercase tracking-wider text-xs">Schedule:</span>
                             <strong className="text-slate-900">{bookingSuccess.appointmentDate} @ {bookingSuccess.startTime.substring(0, 5)}</strong>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center">
                             <span className="text-slate-400 font-semibold uppercase tracking-wider text-xs">Total Price:</span>
-                            <strong className="text-pink-700">LKR {Number(bookingSuccess.totalPrice).toLocaleString()}</strong>
+                            <strong className="text-pink-700">
+                                {Number(bookingSuccess.totalPrice) > 0
+                                    ? `LKR ${Number(bookingSuccess.totalPrice).toLocaleString()}`
+                                    : 'Determined at salon'}
+                                {hasVariableServices && Number(bookingSuccess.totalPrice) > 0 ? ' (+ Variable)' : ''}
+                            </strong>
                         </div>
+                        {hasVariableServices && (
+                            <p className="text-[11px] text-amber-800 italic bg-amber-50 p-1.5 rounded border border-amber-200/60">
+                                Price and Time can be Different according to your preferences and ask from the salon
+                            </p>
+                        )}
                         <div className="flex justify-between">
                             <span className="text-slate-400 font-semibold uppercase tracking-wider text-xs">Payment Method:</span>
                             <strong className="text-slate-900 font-bold">Pay at Salon</strong>

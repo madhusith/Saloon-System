@@ -33,8 +33,8 @@ export const serviceRepository = {
         service.name,
         service.description || null,
         service.category,
-        service.durationMinutes,
-        service.price,
+        service.durationMinutes ?? null,
+        service.price ?? null,
         service.imageUrl || null,
         service.status || 'ACTIVE'
       ]
