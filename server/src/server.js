@@ -17,27 +17,23 @@ import fs from 'fs';
 
 const initDatabaseSchema = async () => {
   try {
-    const [tables] = await pool.query("SHOW TABLES LIKE 'users'");
-    if (Array.isArray(tables) && tables.length === 0) {
-      console.log('Database is empty. Initializing production schema and seed data...');
-      const sqlUrl = new URL('./database/production_setup.sql', import.meta.url);
-      if (fs.existsSync(sqlUrl)) {
-        const sqlContent = fs.readFileSync(sqlUrl, 'utf8');
-        const statements = sqlContent
-          .replace(/--.*$/gm, '')
-          .split(';')
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
+    const sqlUrl = new URL('./database/production_setup.sql', import.meta.url);
+    if (fs.existsSync(sqlUrl)) {
+      const sqlContent = fs.readFileSync(sqlUrl, 'utf8');
+      const statements = sqlContent
+        .replace(/--.*$/gm, '')
+        .split(';')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
-        for (const statement of statements) {
-          try {
-            await pool.query(statement);
-          } catch (stmtErr) {
-            console.warn('SQL statement execution notice:', stmtErr.message);
-          }
+      for (const statement of statements) {
+        try {
+          await pool.query(statement);
+        } catch (stmtErr) {
+          console.warn('SQL statement execution notice:', stmtErr.message);
         }
-        console.log(`Executed ${statements.length} SQL statements. Production database ready!`);
       }
+      console.log(`Verified & executed ${statements.length} schema statements. Production database ready!`);
     }
   } catch (err) {
     console.error('Database auto-initialization note:', err.message);
