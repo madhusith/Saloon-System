@@ -42,6 +42,14 @@ const initDatabaseSchema = async () => {
 
 const ensureDatabaseColumns = async () => {
   try {
+    await pool.execute('ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT FALSE');
+    console.log('Database check: Added must_change_password to users');
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') {
+      // Ignore if exists
+    }
+  }
+  try {
     await pool.execute('ALTER TABLE appointments ADD COLUMN cancellation_reason VARCHAR(500) NULL');
     console.log('Database check: Added cancellation_reason to appointments');
   } catch (err) {
