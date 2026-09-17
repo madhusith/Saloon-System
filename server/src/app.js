@@ -8,6 +8,7 @@ import { notFound } from './middleware/notFound.js';
 import apiRoutes from './routes/index.js';
 
 const app = express();
+app.set('trust proxy', 1);
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
