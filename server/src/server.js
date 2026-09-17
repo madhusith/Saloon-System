@@ -13,6 +13,25 @@ const server = http.createServer(app);
 // Initialize Socket.io
 initSocket(server, env.clientUrl);
 
+import fs from 'fs';
+
+const initDatabaseSchema = async () => {
+  try {
+    const [tables] = await pool.query("SHOW TABLES LIKE 'users'");
+    if (Array.isArray(tables) && tables.length === 0) {
+      console.log('Database is empty. Initializing production schema and seed data...');
+      const sqlUrl = new URL('./database/production_setup.sql', import.meta.url);
+      if (fs.existsSync(sqlUrl)) {
+        const sqlContent = fs.readFileSync(sqlUrl, 'utf8');
+        await pool.query(sqlContent);
+        console.log('Production database schema & initial seed data created successfully!');
+      }
+    }
+  } catch (err) {
+    console.error('Database auto-initialization note:', err.message);
+  }
+};
+
 const ensureDatabaseColumns = async () => {
   try {
     await pool.execute('ALTER TABLE appointments ADD COLUMN cancellation_reason VARCHAR(500) NULL');
@@ -46,7 +65,7 @@ const ensureDatabaseColumns = async () => {
   }
 };
 
-ensureDatabaseColumns().then(() => {
+initDatabaseSchema().then(() => ensureDatabaseColumns()).then(() => {
   server.listen(env.port, () => {
     console.log(`Server running on port ${env.port}`);
   });

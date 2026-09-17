@@ -9,11 +9,11 @@ export const env = {
   port: Number(process.env.PORT || 5050),
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    name: process.env.DB_NAME || 'salon_management',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || ''
+    host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
+    port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+    name: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'salon_management',
+    user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+    password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : (process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || '')
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,
