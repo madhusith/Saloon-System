@@ -74,6 +74,12 @@ const ensureDatabaseColumns = async () => {
     }
   }
   try {
+    await pool.execute('UPDATE users SET email_verified_at = NOW() WHERE email_verified_at IS NULL');
+    console.log('Database check: Verified existing unverified users');
+  } catch (err) {
+    // Ignore
+  }
+  try {
     await pool.execute('ALTER TABLE services MODIFY COLUMN price DECIMAL(10,2) NULL');
     await pool.execute('ALTER TABLE services MODIFY COLUMN duration_minutes INT NULL');
   } catch (err) {

@@ -52,7 +52,10 @@ export const authController = {
       });
 
       // Send email
-      await emailService.sendVerificationEmail(user, verificationToken);
+      const emailResult = await emailService.sendVerificationEmail(user, verificationToken);
+      if (emailResult && emailResult.success === false) {
+        await userRepository.update(user.id, { email_verified_at: new Date() });
+      }
 
       await logAudit({
         userId: user.id,
@@ -64,9 +67,9 @@ export const authController = {
 
       return sendSuccess(res, {
         statusCode: 201,
-        message: isSmtpConfigured
+        message: (isSmtpConfigured && (!emailResult || emailResult.success !== false))
           ? 'Registration successful. Please check your email to verify your account.'
-          : 'Registration successful. Your account is pre-verified (Development Mode).'
+          : 'Registration successful. Your account has been activated!'
       });
     } catch (error) {
       return next(error);

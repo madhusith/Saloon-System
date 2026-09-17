@@ -10,7 +10,10 @@ const transporter = process.env.SMTP_HOST
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD
-      }
+      },
+      connectionTimeout: 5000,
+      greetingTimeout: 5000,
+      socketTimeout: 5000
     })
   : null;
 
@@ -55,7 +58,7 @@ export const emailService = {
     const subject = 'Verify Your Email Address';
     const text = `Hi ${name},\n\nWelcome to the Salon! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`;
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d;">Verify Your Email Address</h2>
         <p>Hi ${name},</p>
         <p>Welcome to the Salon! Please verify your email address to activate your account:</p>
@@ -82,12 +85,13 @@ export const emailService = {
         sentAt: new Date()
       });
     } catch (error) {
-      console.error('Failed to send verification email:', error);
+      console.error('Failed to send verification email:', error.message);
       await notificationRepository.updateNotificationStatus(notificationId, {
         status: 'FAILED',
         errorMessage: error.message
       });
-      throw error;
+      // Do not throw to prevent blocking registration/auth flows
+      return { success: false, error: error.message };
     }
   },
 
@@ -104,7 +108,7 @@ export const emailService = {
     const subject = 'Reset Your Password';
     const text = `Hi ${name},\n\nYou requested a password reset. Please click the link below to set a new password:\n${resetUrl}\n\nThis link will expire in 1 hour. If you did not request this, please ignore this email.`;
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <h2 style="color: #be185d;">Reset Your Password</h2>
         <p>Hi ${name},</p>
         <p>You requested a password reset. Click the button below to set a new password:</p>
@@ -130,12 +134,13 @@ export const emailService = {
         sentAt: new Date()
       });
     } catch (error) {
-      console.error('Failed to send password reset email:', error);
+      console.error('Failed to send password reset email:', error.message);
       await notificationRepository.updateNotificationStatus(notificationId, {
         status: 'FAILED',
         errorMessage: error.message
       });
-      throw error;
+      // Do not throw to prevent crashing HTTP handler
+      return { success: false, error: error.message };
     }
   },
 
