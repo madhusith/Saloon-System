@@ -52,8 +52,44 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
+import fs from 'fs';
+
 app.get('/api/health', async (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
+});
+
+app.get('/api/debug-tables', async (_req, res) => {
+  try {
+    const [tables] = await pool.query("SHOW TABLES");
+    res.json({ tables: tables.map(t => Object.values(t)[0]) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/run-setup', async (_req, res) => {
+  try {
+    const sqlUrl = new URL('./database/production_setup.sql', import.meta.url);
+    const sqlContent = fs.readFileSync(sqlUrl, 'utf8');
+    const statements = sqlContent
+      .replace(/--.*$/gm, '')
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    const results = [];
+    for (const statement of statements) {
+      try {
+        await pool.query(statement);
+        results.push({ success: true, preview: statement.slice(0, 35) });
+      } catch (stmtErr) {
+        results.push({ success: false, preview: statement.slice(0, 35), error: stmtErr.message });
+      }
+    }
+    res.json({ status: 'done', executedCount: statements.length, results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use('/api', apiLimiter, apiRoutes);
