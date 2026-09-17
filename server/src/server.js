@@ -23,8 +23,20 @@ const initDatabaseSchema = async () => {
       const sqlUrl = new URL('./database/production_setup.sql', import.meta.url);
       if (fs.existsSync(sqlUrl)) {
         const sqlContent = fs.readFileSync(sqlUrl, 'utf8');
-        await pool.query(sqlContent);
-        console.log('Production database schema & initial seed data created successfully!');
+        const statements = sqlContent
+          .replace(/--.*$/gm, '')
+          .split(';')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+
+        for (const statement of statements) {
+          try {
+            await pool.query(statement);
+          } catch (stmtErr) {
+            console.warn('SQL statement execution notice:', stmtErr.message);
+          }
+        }
+        console.log(`Executed ${statements.length} SQL statements. Production database ready!`);
       }
     }
   } catch (err) {

@@ -6,9 +6,7 @@ export const errorHandler = (err, _req, res, _next) => {
   const message = err.isOperational ? err.message : 'Internal server error.';
   const errors = err.errors || [];
 
-  if (env.nodeEnv !== 'production') {
-    console.error(err);
-  }
+  console.error('API Error:', err);
 
   return sendError(res, {
     statusCode,

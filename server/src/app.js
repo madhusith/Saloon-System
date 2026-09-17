@@ -31,6 +31,7 @@ const allowedOrigins = [env.clientUrl];
 const corsOrigin = (origin, callback) => {
   if (!origin) return callback(null, true);
   const isAllowed = allowedOrigins.includes(origin) ||
+    /\.vercel\.app$/.test(new URL(origin).hostname) ||
     (env.nodeEnv === 'development' && /^https?:\/\/localhost(:\d+)?$/.test(origin));
   
   if (isAllowed) {
@@ -49,6 +50,11 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
+
+app.get('/api/health', async (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
 app.use('/api', apiLimiter, apiRoutes);
 app.use(notFound);
 app.use(errorHandler);
