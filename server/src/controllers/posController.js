@@ -12,54 +12,7 @@ import { emailService } from '../services/emailService.js';
 const sendEmailReceiptSafely = async (saleDetails) => {
   if (saleDetails.customer_email) {
     try {
-      // We will define a nice email confirmation logic
-      const subject = `Your Invoice Receipt — ${saleDetails.invoice_number}`;
-      const text = `Hi ${saleDetails.customer_name || 'Valued Customer'},\n\nThank you for visiting Beauty Lane! Your payment has been successfully recorded.\n\nInvoice Number: ${saleDetails.invoice_number}\nTotal Paid: LKR ${saleDetails.total_amount}\n\nWe hope to see you again soon!`;
-      
-      const itemsHtml = saleDetails.items.map(item => `
-        <tr>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.item_name_snapshot}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.unit_price).toFixed(2)}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.subtotal).toFixed(2)}</td>
-        </tr>
-      `).join('');
-
-      const html = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #be185d; text-align: center; margin-bottom: 20px;">Beauty Lane Receipt</h2>
-          <p>Hi <strong>${saleDetails.customer_name || 'Valued Customer'}</strong>,</p>
-          <p>Thank you for visiting Beauty Lane! Here is a summary of your receipt:</p>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <thead>
-              <tr style="background-color: #f8fafc;">
-                <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: left;">Item</th>
-                <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: center;">Qty</th>
-                <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Price</th>
-                <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 20px; text-align: right; line-height: 1.6;">
-            <div>Subtotal: <strong>LKR ${Number(saleDetails.subtotal).toFixed(2)}</strong></div>
-            ${saleDetails.discount_amount > 0 ? `<div style="color: #dc2626;">Discount: <strong>-LKR ${Number(saleDetails.discount_amount).toFixed(2)}</strong></div>` : ''}
-            <div style="font-size: 18px; color: #be185d; margin-top: 5px;">Total Paid: <strong>LKR ${Number(saleDetails.total_amount).toFixed(2)}</strong></div>
-          </div>
-          
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #64748b; text-align: center;">Invoice: ${saleDetails.invoice_number} | Cashier: ${saleDetails.cashier_name}</p>
-        </div>
-      `;
-
-      // Log in notifications and send via email service internals
-      // To simplify, we will just use the internal node mailer fallback or console preview
-      console.log(`Sending email receipt for invoice ${saleDetails.invoice_number} to ${saleDetails.customer_email}`);
-      // In development mode it will output in terminal console log.
+      await emailService.sendInvoiceReceiptEmail(saleDetails);
     } catch (e) {
       console.error('Failed to send invoice receipt email:', e);
     }

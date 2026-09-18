@@ -27,8 +27,7 @@ export const authController = {
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
-      const isSmtpConfigured = !!process.env.SMTP_HOST;
-      const emailVerifiedAt = isSmtpConfigured ? null : new Date();
+      const emailVerifiedAt = new Date(); // Immediately active and verified - no verification required
 
       const user = await userRepository.createCustomer({
         fullName,
@@ -39,23 +38,10 @@ export const authController = {
         status: 'ACTIVE'
       });
 
-      // Generate verification token
-      const verificationToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = hashTokenString(verificationToken);
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-      await tokenRepository.saveToken({
-        userId: user.id,
-        tokenType: 'EMAIL_VERIFICATION',
-        tokenHash,
-        expiresAt
+      // Send welcome email asynchronously in background without blocking response or causing UI buffering
+      emailService.sendWelcomeEmail(user).catch(err => {
+        console.error('Non-blocking welcome email notice:', err.message);
       });
-
-      // Send email
-      const emailResult = await emailService.sendVerificationEmail(user, verificationToken);
-      if (emailResult && emailResult.success === false) {
-        await userRepository.update(user.id, { email_verified_at: new Date() });
-      }
 
       await logAudit({
         userId: user.id,
@@ -67,9 +53,7 @@ export const authController = {
 
       return sendSuccess(res, {
         statusCode: 201,
-        message: (isSmtpConfigured && (!emailResult || emailResult.success !== false))
-          ? 'Registration successful. Please check your email to verify your account.'
-          : 'Registration successful. Your account has been activated!'
+        message: 'Registration successful! Your account is active and ready to use.'
       });
     } catch (error) {
       return next(error);
@@ -97,8 +81,10 @@ export const authController = {
         return next(new AppError(`Your account is ${user.status.toLowerCase()}. Please contact administration.`, 403));
       }
 
+      // Ensure user is marked verified so they are never blocked by email verification
       if (!user.email_verified_at) {
-        return next(new AppError('Please verify your email address before logging in.', 403));
+        await userRepository.update(user.id, { email_verified_at: new Date() });
+        user.email_verified_at = new Date();
       }
 
       const accessToken = generateAccessToken(user);
