@@ -84,14 +84,14 @@ export const Register = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Registration Complete</h3>
+            <h3 className="text-lg font-bold text-slate-900">Account Created Successfully!</h3>
             <p className="text-sm text-slate-600">
-              {success || 'A verification link has been sent to your email. Please check your inbox and click the link to activate your account.'}
+              {success || 'Your account is active and ready to use. You can now log in.'}
             </p>
             <div className="pt-4">
               <Link
                 to="/login"
-                className="inline-flex rounded-md bg-pink-700 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-600 transition"
+                className="inline-flex rounded-md bg-pink-700 px-6 py-2.5 text-sm font-bold text-white hover:bg-pink-600 transition shadow-sm"
               >
                 Go to Sign In
               </Link>

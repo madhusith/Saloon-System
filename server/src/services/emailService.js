@@ -1,25 +1,53 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import nodemailer from 'nodemailer';
 import { notificationRepository } from '../repositories/notificationRepository.js';
 
-// Setup transport from env
-const transporter = process.env.SMTP_HOST
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD
-      },
-      connectionTimeout: 5000,
-      greetingTimeout: 5000,
-      socketTimeout: 5000
-    })
-  : null;
+let transporterInstance = null;
+
+export const getTransporter = () => {
+  if (transporterInstance) {
+    return transporterInstance;
+  }
+
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASSWORD;
+  const port = Number(process.env.SMTP_PORT || 465);
+
+  if (!host || !user || !pass) {
+    return null;
+  }
+
+  const isGmail = host.includes('gmail') || (user && user.includes('@gmail.com'));
+
+  transporterInstance = nodemailer.createTransport({
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    ...(isGmail
+      ? {
+          service: 'gmail',
+          auth: { user, pass }
+        }
+      : {
+          host,
+          port,
+          secure: port === 465,
+          auth: { user, pass }
+        }),
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
+  });
+
+  return transporterInstance;
+};
 
 const sendMailInternal = async ({ to, subject, html, text }) => {
-  const fromName = process.env.SMTP_FROM_NAME || 'Salon Management System';
-  const fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@salonmanagement.test';
+  const fromName = process.env.SMTP_FROM_NAME || 'Beauty Lane';
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@salonmanagement.test';
+  const transporter = getTransporter();
 
   if (transporter) {
     const info = await transporter.sendMail({
@@ -29,11 +57,12 @@ const sendMailInternal = async ({ to, subject, html, text }) => {
       text,
       html
     });
+    console.log(`✉️  [REAL-TIME EMAIL SENT] To: ${to} | Subject: "${subject}" | MessageId: ${info.messageId}`);
     return info;
   } else {
     // Development mode fallback
     console.log('\n========================================================================');
-    console.log(`✉️  [EMAIL PREVIEW] (Development Mode)`);
+    console.log(`✉️  [EMAIL PREVIEW] (SMTP not configured in environment)`);
     console.log(`To:      ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Body (Text): \n${text}`);
@@ -527,6 +556,126 @@ export const emailService = {
       });
     } catch (error) {
       console.error('Failed to send appointment cancelled email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send appointment status update email (e.g. Confirmed, Completed)
+   */
+  async sendAppointmentStatusEmail(user, appointment, status) {
+    if (!user?.email) return;
+    const name = getUserName(user);
+    const readableStatus = status.replace(/_/g, ' ');
+    const subject = `Appointment Update: Your booking is ${readableStatus} (${appointment.booking_reference})`;
+    const text = `Hi ${name},\n\nYour appointment (${appointment.booking_reference}) on ${appointment.appointment_date} has been updated to: ${readableStatus}.\n\nThank you for choosing Beauty Lane!`;
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center;">Appointment Status Update</h2>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>Your appointment status has been updated:</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin: 15px 0;">
+          <p style="margin: 4px 0;"><strong>Booking Ref:</strong> ${appointment.booking_reference}</p>
+          <p style="margin: 4px 0;"><strong>Date:</strong> ${appointment.appointment_date}</p>
+          <p style="margin: 4px 0;"><strong>New Status:</strong> <span style="color: #be185d; font-weight: bold;">${readableStatus}</span></p>
+        </div>
+        <p>Thank you for choosing Beauty Lane!</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: user.id,
+      recipientEmail: user.email,
+      notificationType: 'APPOINTMENT_STATUS_CHANGED',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: user.email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send appointment status email:', error);
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'FAILED',
+        errorMessage: error.message
+      });
+    }
+  },
+
+  /**
+   * Send POS Invoice Receipt email to customer
+   */
+  async sendInvoiceReceiptEmail(saleDetails) {
+    if (!saleDetails?.customer_email) return;
+
+    const name = saleDetails.customer_name || 'Valued Customer';
+    const subject = `Your Receipt from Beauty Lane — Invoice ${saleDetails.invoice_number}`;
+    const text = `Hi ${name},\n\nThank you for visiting Beauty Lane! Your payment has been successfully recorded.\n\nInvoice Number: ${saleDetails.invoice_number}\nTotal Paid: LKR ${Number(saleDetails.total_amount).toFixed(2)}\nCashier: ${saleDetails.cashier_name || 'Front Desk'}\n\nWe look forward to serving you again soon!`;
+
+    const itemsHtml = (saleDetails.items || []).map(item => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.item_name_snapshot || item.name || 'Item'}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.unit_price).toFixed(2)}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">LKR ${Number(item.subtotal).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #be185d; text-align: center; margin-bottom: 20px;">Beauty Lane Receipt</h2>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>Thank you for visiting Beauty Lane! Here is your official payment receipt:</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <thead>
+            <tr style="background-color: #f8fafc;">
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: left;">Item</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: center;">Qty</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Price</th>
+              <th style="padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        
+        <div style="margin-top: 20px; text-align: right; line-height: 1.6;">
+          <div>Subtotal: <strong>LKR ${Number(saleDetails.subtotal).toFixed(2)}</strong></div>
+          ${Number(saleDetails.discount_amount) > 0 ? `<div style="color: #dc2626;">Discount: <strong>-LKR ${Number(saleDetails.discount_amount).toFixed(2)}</strong></div>` : ''}
+          <div style="font-size: 18px; color: #be185d; margin-top: 5px;">Total Paid: <strong>LKR ${Number(saleDetails.total_amount).toFixed(2)}</strong></div>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b; text-align: center;">Invoice: ${saleDetails.invoice_number} | Method: ${saleDetails.payment_method || 'CASH'} | Cashier: ${saleDetails.cashier_name || 'Front Desk'}</p>
+      </div>
+    `;
+
+    const notificationId = await notificationRepository.createNotification({
+      userId: saleDetails.customer_id || null,
+      recipientEmail: saleDetails.customer_email,
+      notificationType: 'INVOICE_RECEIPT',
+      subject,
+      status: 'PENDING'
+    });
+
+    try {
+      await sendMailInternal({ to: saleDetails.customer_email, subject, html, text });
+      await notificationRepository.updateNotificationStatus(notificationId, {
+        status: 'SENT',
+        sentAt: new Date()
+      });
+    } catch (error) {
+      console.error('Failed to send invoice receipt email:', error);
       await notificationRepository.updateNotificationStatus(notificationId, {
         status: 'FAILED',
         errorMessage: error.message

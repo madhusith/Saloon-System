@@ -352,6 +352,18 @@ export const appointmentController = {
             emitEvent('appointment:status-changed', { id, status });
             emitEvent('queue:updated');
 
+            // Trigger real-time email notification in background
+            (async () => {
+                try {
+                    const customer = await userRepository.findById(appt.customer_id);
+                    if (customer) {
+                        await emailService.sendAppointmentStatusEmail(customer, appt, status);
+                    }
+                } catch (emailErr) {
+                    console.error('Failed to send appointment status email in background:', emailErr);
+                }
+            })();
+
             return sendSuccess(res, {
                 message: `Appointment status updated to ${status} successfully.`
             });
